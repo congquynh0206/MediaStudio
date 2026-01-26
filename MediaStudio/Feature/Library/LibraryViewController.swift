@@ -11,7 +11,6 @@ import UIKit
 class LibraryViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
-    // Kéo 1 cái Label nhỏ hiển thị trạng thái "Đang phát..." (Optional)
     
     private let viewModel = LibraryViewModel()
     
@@ -24,7 +23,7 @@ class LibraryViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.loadData() // Load lại mỗi khi vào màn hình
+        viewModel.loadData()
     }
     
     private func setupTableView() {
@@ -45,7 +44,6 @@ class LibraryViewController: UIViewController {
     }
 }
 
-// MARK: - TableView
 extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

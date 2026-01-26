@@ -9,17 +9,13 @@ import UIKit
 import AVFoundation
 
 class RecorderViewController: UIViewController {
-
-    // MARK: - Outlets
-    // Nhớ kéo thả từ Storyboard vào đây nhé!
+    
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var recordButton: UIButton!
     @IBOutlet weak var visualizerView: VisualizerView! // Placeholder
-    
-    // MARK: - Properties
+  
     private let viewModel = RecorderViewModel()
     
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -58,7 +54,6 @@ class RecorderViewController: UIViewController {
         }
     }
     
-    // MARK: - Actions
     @IBAction func didTapRecordButton(_ sender: UIButton) {
         viewModel.toggleRecording()
     }
@@ -70,12 +65,8 @@ class RecorderViewController: UIViewController {
     }
     
     @IBAction func didTapListButton(_ sender: Any) {
-        // Code chuyển màn hình thủ công (vì khác Storyboard)
         let storyboard = UIStoryboard(name: "Library", bundle: nil)
-        // Lưu ý: Library.storyboard phải tick "Is Initial View Controller" vào cái VC của nó
-        // HOẶC dùng ID để instantiate
         if let libraryVC = storyboard.instantiateInitialViewController() {
-            // Nếu có NavigationController thì push, không thì present
             present(libraryVC, animated: true)
         }
     }

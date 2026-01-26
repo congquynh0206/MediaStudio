@@ -11,7 +11,7 @@ import UIKit
 class VisualizerView: UIView {
     
     // Config
-    private let barCount = 20 // Giảm số lượng để cột to hơn, dễ nhìn hơn
+    private let barCount = 20
     private let spacing: CGFloat = 4.0
     
     // State
@@ -28,9 +28,7 @@ class VisualizerView: UIView {
     }
     
     private func setupView() {
-        self.backgroundColor = .clear // Hoặc .black để test
-        
-        // Xóa layer cũ nếu có (để tránh bị chồng khi init lại)
+        self.backgroundColor = .clear
         self.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
         barLayers.removeAll()
         
@@ -46,15 +44,8 @@ class VisualizerView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        // Debug: Kiểm tra xem View có bị co về 0 không?
-        if bounds.width == 0 || bounds.height == 0 {
-            print("❌ LỖI UI: VisualizerView có kích thước bằng 0. Kiểm tra lại Constraint!")
-            return
-        }
-        
         // Tính toán kích thước cột
-        // Logic: Chỉ set vị trí X ban đầu. Chiều cao sẽ do updateWaveform quyết định.
-        // Tránh set cứng height ở đây sẽ đè mất animation.
+        //Chỉ set vị trí X ban đầu. Chiều cao sẽ do updateWaveform quyết định.
         
         let totalSpacing = CGFloat(barCount - 1) * spacing
         let barWidth = (bounds.width - totalSpacing) / CGFloat(barCount)
@@ -63,7 +54,7 @@ class VisualizerView: UIView {
         for (index, layer) in barLayers.enumerated() {
             let x = CGFloat(index) * (barWidth + spacing)
             
-            // Nếu layer chưa có frame (lần đầu chạy), set chiều cao mặc định nhỏ
+            // Nếu layer chưa có frame, set chiều cao mặc định nhỏ
             if layer.frame == .zero {
                  layer.frame = CGRect(x: x, y: midY - 1, width: barWidth, height: 2)
             } else {
@@ -77,7 +68,6 @@ class VisualizerView: UIView {
     func updateWaveform(value: Float) {
         guard bounds.height > 0 else { return }
         
-        // Normalize: -60 -> 0
         let normalized = max(0.05, CGFloat(value + 60) / 60) // Min 0.05 để luôn thấy vạch mờ
         
         for layer in barLayers {

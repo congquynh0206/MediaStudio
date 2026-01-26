@@ -23,28 +23,28 @@ class LibraryViewModel: NSObject {
     private let repository = MediaRepository.shared
     private var audioPlayer: AVAudioPlayer?
     
+    // Load all item
     func loadData() {
         Task {
-            // Lấy tất cả, sắp xếp mới nhất lên đầu
             let allItems = await repository.fetchAll()
             self.items = allItems.sorted(by: { $0.createdAt > $1.createdAt })
             self.onDataLoaded?()
         }
     }
     
-    // Logic phát nhạc đơn giản
+    // Logic phát nhạc
     func playItem(at index: Int) {
         let item = items[index]
         
-        // 1. Lấy đường dẫn file thật
+        // Lấy đường dẫn file thật
         guard let fileURL = item.fullFileURL else {
-            print("❌ Không tìm thấy file: \(item.relativePath)")
+            print("Không tìm thấy file: \(item.relativePath)")
             return
         }
         
-        // 2. Setup Player
+        // Setup Player
         do {
-            // Cấu hình Session để phát loa ngoài
+            // Cấu hình Session để phát loa ngoài (playback)
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             
@@ -53,10 +53,10 @@ class LibraryViewModel: NSObject {
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
             
-            print("▶️ Đang phát: \(item.name)")
+            print("Đang phát: \(item.name)")
             onPlaybackStatusChanged?(true)
         } catch {
-            print("❌ Lỗi phát file: \(error)")
+            print("Lỗi phát file: \(error)")
         }
     }
     
@@ -68,7 +68,7 @@ class LibraryViewModel: NSObject {
     func deleteItem(at index: Int) {
         let item = items[index]
         Task {
-            // Xóa file vật lý (Optional - để sau làm kỹ hơn, giờ xóa DB trước)
+            // Xóa file vật lý
             try? FileManager.default.removeItem(at: item.fullFileURL!)
             
             // Xóa trong DB

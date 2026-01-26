@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // Thêm guard let để check nil. Nếu quên tích thì nó in lỗi chứ không crash app.
         guard let initialVC = storyboard.instantiateInitialViewController() else {
-            fatalError("❌ LỖI: Chưa tích 'Is Initial View Controller' trong Recorder.storyboard kìa bạn ơi!")
+            fatalError("Chưa tích 'Is Initial View Controller' trong Recorder.storyboard kìa bạn ơi!")
         }
         
         window.rootViewController = initialVC
