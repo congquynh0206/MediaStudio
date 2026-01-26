@@ -71,4 +71,15 @@ final class MediaRepository: MediaRepositoryType {
             print("Deleted from Realm: \(id)")
         }.value
     }
+    
+    // Đổi tên
+    func rename (id : String, newName : String) async throws {
+        try await Task { @MainActor in
+            let realm = try Realm()
+            guard let item = realm.object(ofType: MediaItemObject.self, forPrimaryKey: id) else {return}
+            try realm.write{
+                item.name = newName
+            }
+        }.value
+    }
 }

@@ -64,10 +64,59 @@ extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
         viewModel.playItem(at: indexPath.row)
     }
     
-    // Vuốt để xóa
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            viewModel.deleteItem(at: indexPath.row)
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        // Nút xoá
+        let deleteAction = UIContextualAction(style: .destructive, title: "Xóa") { [weak self] _, _, completion in
+            self?.viewModel.deleteItem(at: indexPath.row)
+            completion(true)
         }
+        deleteAction.image = UIImage(systemName: "trash")
+        
+        // Nút đổi tên
+        let renameAction = UIContextualAction(style: .normal, title: "Đổi tên") { [weak self] _, _, completion in
+            self?.showRenameAlert(at: indexPath)
+            completion(true)
+        }
+        renameAction.backgroundColor = .systemBlue
+        renameAction.image = UIImage(systemName: "pencil")
+        
+        // Nút share
+        let shareAction = UIContextualAction(style: .normal, title: "Gửi") { [weak self] _, _, completion in
+            self?.shareItem(at: indexPath)
+            completion(true)
+        }
+        shareAction.backgroundColor = .systemGreen
+        shareAction.image = UIImage(systemName: "square.and.arrow.up")
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction, renameAction, shareAction])
+    }
+    
+    // Popup nhập tên
+    private func showRenameAlert(at indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Đổi tên", message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.placeholder = "Nhập tên mới..."
+            // Điền sẵn tên cũ
+            tf.text = self.viewModel.items[indexPath.row].name
+        }
+        
+        let okAction = UIAlertAction(title: "Lưu", style: .default) { _ in
+            if let newName = alert.textFields?.first?.text, !newName.isEmpty {
+                self.viewModel.renameItem(index: indexPath.row, newName: newName)
+            }
+        }
+        alert.addAction(okAction)
+        alert.addAction(UIAlertAction(title: "Hủy", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    // Chia sẻ file
+    private func shareItem(at indexPath: IndexPath) {
+        let item = viewModel.items[indexPath.row]
+        guard let url = item.fullFileURL else { return }
+        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        present(activityVC, animated: true)
     }
 }

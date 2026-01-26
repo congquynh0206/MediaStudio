@@ -78,6 +78,19 @@ class LibraryViewModel: NSObject {
             loadData()
         }
     }
+    
+    func renameItem (index : Int, newName : String) {
+        let item = items[index]
+        Task{
+            do{
+                try await repository.rename(id: item.id, newName: newName)
+                loadData()
+            }catch{
+                print("Lỗi đổi tên")
+            }
+        }
+    }
+    
 }
 
 extension LibraryViewModel: AVAudioPlayerDelegate {
