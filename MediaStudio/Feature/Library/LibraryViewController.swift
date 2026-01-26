@@ -61,7 +61,18 @@ extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
     // Bấm vào dòng để phát
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        viewModel.playItem(at: indexPath.row)
+        let selectedItem = viewModel.items[indexPath.row]
+//        viewModel.playItem(at: indexPath.row)
+        let storyboard = UIStoryboard(name: "Library", bundle: nil)
+        if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
+            playerVC.itemToPlay = selectedItem
+            
+            if let nav = navigationController {
+                nav.pushViewController(playerVC, animated: true)
+            } else {
+                present(playerVC, animated: true)
+            }
+        }
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
