@@ -67,7 +67,9 @@ class RecorderViewController: UIViewController {
     @IBAction func didTapListButton(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Library", bundle: nil)
         if let libraryVC = storyboard.instantiateInitialViewController() {
-            present(libraryVC, animated: true)
+            let nav = UINavigationController(rootViewController: libraryVC)
+            
+            present(nav, animated: true)
         }
     }
 }

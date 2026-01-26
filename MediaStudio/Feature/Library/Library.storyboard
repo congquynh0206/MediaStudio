@@ -16,36 +16,49 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Q4G-tn-h6m">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="90" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Q4G-tn-h6m">
                                 <rect key="frame" x="0.0" y="118" width="393" height="666"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="MediaCell" rowHeight="169" id="tnm-Zu-yEN" customClass="MediaCell" customModule="MediaStudio" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="50" width="393" height="169"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="MediaCell" rowHeight="90" id="tnm-Zu-yEN" customClass="MediaCell" customModule="MediaStudio" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="50" width="393" height="90"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="tnm-Zu-yEN" id="aAn-aQ-0VT">
-                                            <rect key="frame" x="0.0" y="0.0" width="393" height="169"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="90"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fGW-q4-i8x">
-                                                    <rect key="frame" x="20" y="20" width="150" height="102"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fGW-q4-i8x">
+                                                    <rect key="frame" x="35" y="22" width="60" height="58"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="60" id="4Fx-UE-iBp"/>
+                                                        <constraint firstAttribute="width" constant="60" id="pf0-YT-bQb"/>
+                                                    </constraints>
                                                 </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tên file" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yQH-VA-oUn">
-                                                    <rect key="frame" x="229" y="52" width="55" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tên file" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yQH-VA-oUn">
+                                                    <rect key="frame" x="110" y="22" width="248" height="20.333333333333329"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lyy-NM-EgA">
-                                                    <rect key="frame" x="74" y="130" width="46" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lyy-NM-EgA">
+                                                    <rect key="frame" x="110" y="47.333333333333336" width="268" height="21.000000000000007"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailingMargin" secondItem="yQH-VA-oUn" secondAttribute="trailing" constant="15" id="0TO-rE-94n"/>
+                                                <constraint firstItem="Lyy-NM-EgA" firstAttribute="leading" secondItem="fGW-q4-i8x" secondAttribute="trailing" constant="15" id="6yZ-Qu-WYf"/>
+                                                <constraint firstItem="fGW-q4-i8x" firstAttribute="leading" secondItem="aAn-aQ-0VT" secondAttribute="leadingMargin" constant="15" id="7md-ZM-gMY"/>
+                                                <constraint firstAttribute="trailing" secondItem="Lyy-NM-EgA" secondAttribute="trailing" constant="15" id="E7t-XY-gOu"/>
+                                                <constraint firstItem="yQH-VA-oUn" firstAttribute="leading" secondItem="fGW-q4-i8x" secondAttribute="trailing" constant="15" id="F5g-9z-fPd"/>
+                                                <constraint firstItem="Lyy-NM-EgA" firstAttribute="top" secondItem="yQH-VA-oUn" secondAttribute="bottom" constant="5" id="VbW-ii-Iag"/>
+                                                <constraint firstItem="yQH-VA-oUn" firstAttribute="top" secondItem="aAn-aQ-0VT" secondAttribute="topMargin" constant="10" id="bjH-Mz-mjT"/>
+                                                <constraint firstItem="fGW-q4-i8x" firstAttribute="top" secondItem="aAn-aQ-0VT" secondAttribute="topMargin" constant="10" id="iiB-Sz-cGd"/>
+                                                <constraint firstAttribute="bottom" secondItem="fGW-q4-i8x" secondAttribute="bottom" constant="10" id="wrU-DP-gWh"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="durationLabel" destination="Lyy-NM-EgA" id="MWq-TB-E2X"/>
@@ -58,12 +71,6 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="Q4G-tn-h6m" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="MCH-ap-DKe"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Q4G-tn-h6m" secondAttribute="bottom" id="Nl7-BJ-YO4"/>
-                            <constraint firstItem="Q4G-tn-h6m" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="YQr-Wj-8nM"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Q4G-tn-h6m" secondAttribute="trailing" id="hnI-3d-wLf"/>
-                        </constraints>
                     </view>
                     <connections>
                         <outlet property="tableView" destination="Q4G-tn-h6m" id="mIf-FF-vA7"/>

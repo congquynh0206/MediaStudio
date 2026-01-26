@@ -31,9 +31,7 @@ class MediaCell: UITableViewCell {
         formatter.allowedUnits = [.minute, .second]
         formatter.zeroFormattingBehavior = .pad
         let timeStr = formatter.string(from: item.duration) ?? "00:00"
-        
-        let dateStr = item.createdAt.formatted(date: .numeric, time: .shortened)
-        durationLabel.text = "\(timeStr) • \(dateStr)"
+        durationLabel.text = "\(timeStr)"
         
         let iconName = item.type == .audio ? "mic.fill" : "video.fill"
         iconImageView.image = UIImage(systemName: iconName)

@@ -16,56 +16,69 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pdc-pp-CkY" customClass="VisualizerView" customModule="MediaStudio" customModuleProvider="target">
-                                <rect key="frame" x="63" y="181" width="240" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pdc-pp-CkY" customClass="VisualizerView" customModule="MediaStudio" customModuleProvider="target">
+                                <rect key="frame" x="30" y="145" width="333" height="164"/>
                                 <color key="backgroundColor" systemColor="systemGray3Color"/>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mpU-Pq-aCo">
-                                <rect key="frame" x="162" y="618" width="50" height="23"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mpU-Pq-aCo">
+                                <rect key="frame" x="166.66666666666666" y="618" width="60" height="23"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="23" id="oW1-NQ-nRP"/>
+                                    <constraint firstAttribute="width" constant="60" id="qSP-1C-LSg"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h8y-8Z-27a">
-                                <rect key="frame" x="155" y="686" width="57" height="39"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="REC"/>
-                            </button>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="vRg-qm-CWx">
-                                <rect key="frame" x="118" y="561" width="131" height="31"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="vRg-qm-CWx">
+                                <rect key="frame" x="131" y="561" width="131" height="31"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="m0l-Ht-nUz"/>
+                                </constraints>
                                 <segments>
                                     <segment title="First"/>
                                     <segment title="Second"/>
                                 </segments>
                             </segmentedControl>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ob8-yE-GJq">
-                                <rect key="frame" x="155" y="686" width="57" height="39"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="REC"/>
-                                <connections>
-                                    <action selector="didTapRecordButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="6RE-UX-iON"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gfV-Gb-xQz">
-                                <rect key="frame" x="297" y="86" width="52" height="39"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gfV-Gb-xQz">
+                                <rect key="frame" x="297" y="86" width="66" height="39"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="List"/>
                                 <connections>
                                     <action selector="didTapListButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="veM-1L-jsz"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ob8-yE-GJq">
+                                <rect key="frame" x="168" y="671" width="57" height="39"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="REC"/>
+                                <connections>
+                                    <action selector="didTapRecordButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="6RE-UX-iON"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="gfV-Gb-xQz" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="topMargin" constant="-32" id="0cP-kt-b4P"/>
+                            <constraint firstAttribute="bottom" secondItem="pdc-pp-CkY" secondAttribute="bottom" constant="543" id="1wC-Of-n1f"/>
+                            <constraint firstItem="pdc-pp-CkY" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="30" id="5U6-IM-Reg"/>
+                            <constraint firstItem="pdc-pp-CkY" firstAttribute="top" secondItem="gfV-Gb-xQz" secondAttribute="bottom" constant="20" id="PvB-gm-ORg"/>
+                            <constraint firstItem="pdc-pp-CkY" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="Qdh-Di-tSu"/>
+                            <constraint firstItem="mpU-Pq-aCo" firstAttribute="top" secondItem="vRg-qm-CWx" secondAttribute="bottom" constant="27" id="RqT-cT-eno"/>
+                            <constraint firstItem="pdc-pp-CkY" firstAttribute="centerX" secondItem="vRg-qm-CWx" secondAttribute="centerX" id="c6B-Fg-i9t"/>
+                            <constraint firstItem="gfV-Gb-xQz" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="100" id="e8J-IZ-9F2"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ob8-yE-GJq" secondAttribute="bottom" constant="74" id="gv1-6G-al5"/>
+                            <constraint firstItem="Ob8-yE-GJq" firstAttribute="top" secondItem="mpU-Pq-aCo" secondAttribute="bottom" constant="30" id="nOA-53-xbk"/>
+                            <constraint firstItem="gfV-Gb-xQz" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="297" id="njE-sh-juh"/>
+                            <constraint firstItem="vRg-qm-CWx" firstAttribute="centerX" secondItem="mpU-Pq-aCo" secondAttribute="centerX" id="qaj-Mh-0kj"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="gfV-Gb-xQz" secondAttribute="trailing" constant="30" id="r9w-ec-oLP"/>
+                            <constraint firstItem="mpU-Pq-aCo" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="rAp-ue-ogi"/>
+                            <constraint firstItem="Ob8-yE-GJq" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="un6-cy-4qA"/>
+                        </constraints>
                     </view>
                     <connections>
-                        <outlet property="recordButton" destination="h8y-8Z-27a" id="Gd7-98-kto"/>
+                        <outlet property="recordButton" destination="Ob8-yE-GJq" id="JLV-yv-8ig"/>
                         <outlet property="timerLabel" destination="mpU-Pq-aCo" id="CyF-Xv-RdB"/>
                         <outlet property="visualizerView" destination="pdc-pp-CkY" id="Nlz-1j-m9v"/>
                     </connections>
