@@ -23,7 +23,7 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Danh Sách Ghi Âm"
+        title = "Record List"
         setupTableView()
         bindViewModel()
         setupSearchController()
@@ -38,7 +38,7 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     private func setupSearchController() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false // Không làm tối màn hình
-        searchController.searchBar.placeholder = "Tìm kiếm"
+        searchController.searchBar.placeholder = "Search"
         
         
         navigationItem.searchController = searchController
@@ -47,15 +47,18 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     
     // Nút sắp xếp
     private func setupSortButton() {
-        let sortMenu = UIMenu(title: "Sắp xếp theo", children: [
-            UIAction(title: "Mới nhất", image: UIImage(systemName: "arrow.down.circle"), handler: { _ in
+        let sortMenu = UIMenu(title: "Sort by", children: [
+            UIAction(title: "Newest", image: UIImage(systemName: "arrow.down.circle"), handler: { _ in
                 self.viewModel.sort(by: .newest)
             }),
-            UIAction(title: "Cũ nhất", image: UIImage(systemName: "arrow.up.circle"), handler: { _ in
+            UIAction(title: "Oldest", image: UIImage(systemName: "arrow.up.circle"), handler: { _ in
                 self.viewModel.sort(by: .oldest)
             }),
-            UIAction(title: "Tên A-Z", image: UIImage(systemName: "textformat"), handler: { _ in
+            UIAction(title: "Name A-Z", image: UIImage(systemName: "textformat"), handler: { _ in
                 self.viewModel.sort(by: .nameAZ)
+            }),
+            UIAction(title: "Name Z-A", image: UIImage(systemName: "textformat"), handler: { _ in
+                self.viewModel.sort(by: .nameZA)
             })
         ])
         

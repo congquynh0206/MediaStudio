@@ -15,7 +15,7 @@ class TrashViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Thùng Rác"
+        title = "Rubbish Bin"
         setupTableView()
         setupHeaderView()
         
@@ -40,10 +40,11 @@ class TrashViewController: UIViewController, UITableViewDataSource, UITableViewD
         
         // Tạo Label
         let label = UILabel()
-        label.text = "Các file trong thùng rác sẽ tự động bị xóa sau 30 ngày"
+        label.text = "Files will be automatically deleted after 30 days."
         label.textColor = .secondaryLabel // Màu chữ xám
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textAlignment = .center
+        label.numberOfLines = 2
         label.frame = headerView.bounds
         
         // Gắn vào TableView
@@ -68,7 +69,7 @@ class TrashViewController: UIViewController, UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         // Nút khôi phục
-        let restoreAction = UIContextualAction(style: .normal, title: "Khôi phục") { [weak self] _, _, completion in
+        let restoreAction = UIContextualAction(style: .normal, title: "Recover") { [weak self] _, _, completion in
             self?.viewModel.restoreItem(at: indexPath.row)
             completion(true)
         }
@@ -76,23 +77,23 @@ class TrashViewController: UIViewController, UITableViewDataSource, UITableViewD
         restoreAction.image = UIImage(systemName: "arrow.uturn.backward")
         
         // Nút xoá vĩnh viễn
-        let deleteAction = UIContextualAction(style: .destructive, title: "Xoá hẳn") { [weak self] _, _, completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
             guard let self = self else { return }
             
             // Hiện Alert xác nhận
             let alert = UIAlertController(
-                title: "Xóa vĩnh viễn?",
-                message: "Bạn sẽ không thể khôi phục file ghi âm này. Bạn có chắc không?",
+                title: "Permanently delete?",
+                message: "You won't be able to recover this audio file. Are you sure?",
                 preferredStyle: .alert
             )
             
             // Nút Hủy
-            alert.addAction(UIAlertAction(title: "Hủy", style: .cancel) { _ in
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
                 completion(false) // Đóng swipe
             })
             
-            // Nút Xóa (Màu đỏ)
-            alert.addAction(UIAlertAction(title: "Xóa", style: .destructive) { _ in
+            // Nút Xóa
+            alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
                 self.viewModel.deletePermanently(at: indexPath.row)
                 completion(true)
             })

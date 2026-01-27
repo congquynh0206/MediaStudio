@@ -1,6 +1,24 @@
 {
-  "originHash" : "2174eaf93f622d57be865cd78b51b72620c12528f1f0957292620977c4d69891",
+  "originHash" : "06dad28845604868ab29fafd4004673cac3a2713a5016e9627df6fb6c5276fe7",
   "pins" : [
+    {
+      "identity" : "dswaveformimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dmrschmidt/DSWaveformImage",
+      "state" : {
+        "revision" : "a7a96cf4478c6fa084e76c175bcf7f4c9a38f80a",
+        "version" : "14.3.0"
+      }
+    },
+    {
+      "identity" : "rangeslider",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/warchimede/RangeSlider",
+      "state" : {
+        "revision" : "a622cf0a2e18564388a5cd03ddef13e0d7b4f88c",
+        "version" : "1.2.0"
+      }
+    },
     {
       "identity" : "realm-core",
       "kind" : "remoteSourceControl",

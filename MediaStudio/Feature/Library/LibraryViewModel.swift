@@ -52,6 +52,7 @@ class LibraryViewModel: NSObject {
         case newest // Mới nhất
         case oldest // Cũ nhất
         case nameAZ // Tên A-Z
+        case nameZA
     }
     
     func sort(by type: SortType) {
@@ -64,6 +65,9 @@ class LibraryViewModel: NSObject {
             
         case .nameAZ:
             items.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            
+        case .nameZA:
+            items.sort { $0.name.localizedStandardCompare($1.name) == .orderedDescending }
         }
         onDataLoaded?()
     }

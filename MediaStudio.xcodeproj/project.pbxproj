@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		95C6C32D2F23506E00750AC7 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 95C6C32C2F23506E00750AC7 /* RealmSwift */; };
 		95C6C3522F2374AD00750AC7 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 95C6C32C2F23506E00750AC7 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		95EDC3F22F289A5A00DEE318 /* WARangeSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 95EDC3F12F289A5A00DEE318 /* WARangeSlider */; };
+		95EDC3F52F289A8300DEE318 /* DSWaveformImage in Frameworks */ = {isa = PBXBuildFile; productRef = 95EDC3F42F289A8300DEE318 /* DSWaveformImage */; };
+		95EDC3F72F289A8300DEE318 /* DSWaveformImageViews in Frameworks */ = {isa = PBXBuildFile; productRef = 95EDC3F62F289A8300DEE318 /* DSWaveformImageViews */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -56,6 +59,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				95C6C32D2F23506E00750AC7 /* RealmSwift in Frameworks */,
+				95EDC3F52F289A8300DEE318 /* DSWaveformImage in Frameworks */,
+				95EDC3F22F289A5A00DEE318 /* WARangeSlider in Frameworks */,
+				95EDC3F72F289A8300DEE318 /* DSWaveformImageViews in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +106,9 @@
 			name = MediaStudio;
 			packageProductDependencies = (
 				95C6C32C2F23506E00750AC7 /* RealmSwift */,
+				95EDC3F12F289A5A00DEE318 /* WARangeSlider */,
+				95EDC3F42F289A8300DEE318 /* DSWaveformImage */,
+				95EDC3F62F289A8300DEE318 /* DSWaveformImageViews */,
 			);
 			productName = MediaStudio;
 			productReference = 95C6C3112F234DD400750AC7 /* MediaStudio.app */;
@@ -131,6 +140,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				95C6C32B2F23506E00750AC7 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				95EDC3F02F289A5A00DEE318 /* XCRemoteSwiftPackageReference "RangeSlider" */,
+				95EDC3F32F289A8300DEE318 /* XCRemoteSwiftPackageReference "DSWaveformImage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 95C6C3122F234DD400750AC7 /* Products */;
@@ -374,6 +385,22 @@
 				kind = branch;
 			};
 		};
+		95EDC3F02F289A5A00DEE318 /* XCRemoteSwiftPackageReference "RangeSlider" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/warchimede/RangeSlider";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+		95EDC3F32F289A8300DEE318 /* XCRemoteSwiftPackageReference "DSWaveformImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dmrschmidt/DSWaveformImage";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 14.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -381,6 +408,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 95C6C32B2F23506E00750AC7 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		95EDC3F12F289A5A00DEE318 /* WARangeSlider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 95EDC3F02F289A5A00DEE318 /* XCRemoteSwiftPackageReference "RangeSlider" */;
+			productName = WARangeSlider;
+		};
+		95EDC3F42F289A8300DEE318 /* DSWaveformImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 95EDC3F32F289A8300DEE318 /* XCRemoteSwiftPackageReference "DSWaveformImage" */;
+			productName = DSWaveformImage;
+		};
+		95EDC3F62F289A8300DEE318 /* DSWaveformImageViews */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 95EDC3F32F289A8300DEE318 /* XCRemoteSwiftPackageReference "DSWaveformImage" */;
+			productName = DSWaveformImageViews;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
