@@ -111,20 +111,17 @@ class RecorderViewModel: NSObject {
     
     
     private func startTimer() {
-        stopTimer() // Reset cũ trước
-        currentDuration = 0
+        stopTimer() // Reset cũ 
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
-                guard let self = self else { return }
+                guard let self = self , let recorder = self.audioRecorder else { return }
                 self.audioRecorder?.updateMeters()
                 let power = self.audioRecorder?.averagePower(forChannel: 0) ?? -160
                 self.onPowerUpdate?(power)
                 
-                self.currentDuration += 0.05
-                if Int(self.currentDuration * 20) % 20 == 0 {
-                    self.formatTime(self.currentDuration)
-                }
+                self.currentDuration = recorder.currentTime
+                self.formatTime(self.currentDuration)
             }
         }
     }

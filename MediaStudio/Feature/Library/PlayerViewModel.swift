@@ -8,6 +8,7 @@
 
 import Foundation
 import AVFoundation
+import MediaPlayer
 
 @MainActor
 class PlayerViewModel: NSObject {
@@ -25,6 +26,8 @@ class PlayerViewModel: NSObject {
         self.item = item
         super.init()
         setupPlayer()
+        setupRemoteCommandCenter()
+        updateNowPlayingInfo()
     }
     
     private func setupPlayer() {
@@ -42,6 +45,66 @@ class PlayerViewModel: NSObject {
             print("Lỗi Player: \(error)")
         }
     }
+    // MARK: Setup lockscreen
+    
+    func setupRemoteCommandCenter() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+        
+        // Nút Play
+        commandCenter.playCommand.addTarget { [weak self] event in
+            self?.togglePlayPause()
+            return .success
+        }
+        
+        // Nút Pause
+        commandCenter.pauseCommand.addTarget { [weak self] event in
+            self?.togglePlayPause()
+            return .success
+        }
+        
+        // Nút Tua
+        commandCenter.skipForwardCommand.preferredIntervals = [5] // 5 giây
+        commandCenter.skipForwardCommand.addTarget { [weak self] event in
+            self?.seek(by: 5)
+            return .success
+        }
+        commandCenter.skipBackwardCommand.preferredIntervals = [5]
+        commandCenter.skipBackwardCommand.addTarget { [weak self] event in
+            self?.seek(by: -5)
+            return .success
+        }
+        
+        // Thanh trượt
+        commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+            guard let event = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
+            self?.seek(to: Float(event.positionTime))
+            return .success
+        }
+    }
+    
+    func updateNowPlayingInfo() {
+        guard let player = audioPlayer else { return }
+        
+        var nowPlayingInfo = [String: Any]()
+        
+        // Tên
+        nowPlayingInfo[MPMediaItemPropertyTitle] = item.name
+        
+        // Ảnh bìa
+        if let image = UIImage(systemName: "opticaldisc") {
+            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in
+                return image
+            }
+        }
+        
+        // Thời gian
+        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player.duration
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player.isPlaying ? 1.0 : 0.0
+        
+        // Đẩy lên hệ thống
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
     
     // MARK: Điều khiển
     
@@ -57,12 +120,14 @@ class PlayerViewModel: NSObject {
             startTimer()
             onStatusChanged?(true)
         }
+        updateNowPlayingInfo()
     }
     
     // Tua
     func seek(to value: Float) {
         // 0.0 đến 1.0
         audioPlayer?.currentTime = TimeInterval(value)
+        updateMetrics()
     }
     
     func seek(by seconds: TimeInterval) {
@@ -111,6 +176,9 @@ class PlayerViewModel: NSObject {
         let timeString = formatTime(current)
         
         onTimeUpdate?(Float(current), timeString)
+        if Int(current * 10) % 10 == 0 {
+            updateNowPlayingInfo()
+        }
     }
     
     private func formatTime(_ time: TimeInterval) -> String {
@@ -127,6 +195,7 @@ extension PlayerViewModel: AVAudioPlayerDelegate {
             self.onStatusChanged?(false)
             // Reset về 0
             self.onTimeUpdate?(0, "00:00")
+            self.updateNowPlayingInfo()
         }
     }
 }
