@@ -19,10 +19,7 @@ class EditViewController: UIViewController {
     @IBOutlet weak var startLabel: UILabel!
     @IBOutlet weak var endLabel: UILabel!
     
-    // 1. Outlet mới cho Tiêu đề (Nhớ nối dây nhé!)
     @IBOutlet weak var titleLabel: UILabel!
-    
-    // 2. Outlet cho nút Nghe thử (Để đổi chữ Play/Stop)
     @IBOutlet weak var previewButton: UIButton!
     
     // MARK: - Components
@@ -31,7 +28,9 @@ class EditViewController: UIViewController {
     // MARK: - Data & Player
     var itemToEdit: MediaItem?
     
-    // Trình phát nhạc riêng cho màn hình này
+    var onDidSave: (() -> Void)?
+    
+    // Trình phát nhạc
     var player: AVPlayer?
     var timeObserver: Any?
     var isPreviewing = false // Trạng thái đang nghe thử hay không
@@ -48,7 +47,7 @@ class EditViewController: UIViewController {
         updateSelectionBoxFrame()
     }
     
-    // Khi thoát màn hình thì phải tắt nhạc ngay
+    // Khi thoát màn hình thì tắt nhạc
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopPreview()
@@ -57,10 +56,10 @@ class EditViewController: UIViewController {
     private func setupUI() {
         guard let item = itemToEdit, let fileURL = item.fullFileURL else { return }
         
-        // --- A. Hiển thị Tiêu đề ---
+        // Tên
         titleLabel.text = item.name
         
-        // --- B. Waveform ---
+        // Sóng âm
         waveformImageView.backgroundColor = .clear
         let waveConfig = Waveform.Configuration(
             style: .striped(.init(color: .systemBlue, width: 3, spacing: 2)),
@@ -69,7 +68,7 @@ class EditViewController: UIViewController {
         waveformImageView.configuration = waveConfig
         waveformImageView.waveformAudioURL = fileURL
         
-        // --- C. Slider ---
+        // Slider
         rangeSlider.backgroundColor = .clear
         rangeSlider.minimumValue = 0.0
         rangeSlider.maximumValue = item.duration
@@ -82,7 +81,7 @@ class EditViewController: UIViewController {
         
         rangeSlider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         
-        // Chuẩn bị Player
+        // Player
         let playerItem = AVPlayerItem(url: fileURL)
         player = AVPlayer(playerItem: playerItem)
         
@@ -97,7 +96,7 @@ class EditViewController: UIViewController {
         waveformImageView.addSubview(selectionBox)
     }
     
-    // MARK: - Logic Slider & UI Update
+    // MARK: - Logic Slider
     @objc func sliderValueChanged(_ slider: RangeSlider) {
         // Nếu đang nghe thử mà kéo slider thì dừng lại ngay
         if isPreviewing {
@@ -124,9 +123,8 @@ class EditViewController: UIViewController {
         selectionBox.frame = CGRect(x: startX, y: 0, width: endX - startX, height: waveHeight)
     }
     
-    // MARK: - Logic Nghe Thử (Preview) 🎧
+    // MARK: - Nghe Thử
     
-    // Nối nút "Start" cũ vào hàm này (Action)
     @IBAction func didTapPreviewButton(_ sender: Any) {
         if isPreviewing {
             stopPreview()
@@ -141,16 +139,16 @@ class EditViewController: UIViewController {
         let startTime = rangeSlider.lowerValue
         let endTime = rangeSlider.upperValue
         
-        // 1. Tua đến điểm bắt đầu (startTime)
+        // Tua đến điểm bắt đầu (startTime)
         let targetTime = CMTime(seconds: startTime, preferredTimescale: 600)
         player.seek(to: targetTime)
         
-        // 2. Bắt đầu phát
+        // Bắt đầu phát
         player.play()
         isPreviewing = true
         previewButton.setImage(UIImage(systemName: "stop.fill"), for: .normal)
         
-        // 3. Theo dõi thời gian: Nếu chạy lố qua điểm End thì dừng lại
+        // Nếu chạy qua điểm End thì dừng lại
         timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(value: 1, timescale: 10), queue: .main) { [weak self] time in
             guard let self = self else { return }
             
@@ -172,7 +170,7 @@ class EditViewController: UIViewController {
         previewButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
     }
     
-    // MARK: - Các hàm phụ trợ
+    // MARK: - Helper
     private func updateLabels(start: Double, end: Double) {
         startLabel.text = formatTime(start)
         endLabel.text = formatTime(end)
@@ -190,19 +188,81 @@ class EditViewController: UIViewController {
     }
     
     @IBAction func didTapSave(_ sender: Any) {
+        let alert = UIAlertController(title: "Save Changes", message: "How would you like to save this trimmed file?", preferredStyle: .actionSheet)
+        
+        //  Lưu thành file mới
+        let newFileAction = UIAlertAction(title: "Save as a new file", style: .default) { [weak self] _ in
+            self?.processSave(isOverwrite: false)
+        }
+        
+        // Ghi đè file gốc
+        let overwriteAction = UIAlertAction(title: "Replace the original file.", style: .destructive) { [weak self] _ in
+            self?.processSave(isOverwrite: true)
+        }
+        
+        // Option C: Hủy
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alert.addAction(newFileAction)
+        alert.addAction(overwriteAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    // Hàm xử lý logic cắt và lưu vào DB (Được tách riêng để tái sử dụng)
+    private func processSave(isOverwrite: Bool) {
         guard let item = itemToEdit, let sourceURL = item.fullFileURL else { return }
+        
         let startTime = rangeSlider.lowerValue
         let endTime = rangeSlider.upperValue
+        let newDuration = endTime - startTime
         
-        let alert = UIAlertController(title: "Đang xử lý...", message: nil, preferredStyle: .alert)
-        present(alert, animated: true)
+        // Hiện loading
+        let loadingAlert = UIAlertController(title: "Processing...", message: nil, preferredStyle: .alert)
+        present(loadingAlert, animated: true)
         
+        // Gọi hàm cắt file (Trim)
         trimAudio(sourceURL: sourceURL, startTime: startTime, endTime: endTime) { [weak self] newURL in
+            guard let self = self else { return }
+            
+            // Xử lý Database trong luồng chính
             DispatchQueue.main.async {
-                alert.dismiss(animated: true) {
-                    if newURL != nil {
-                        self?.dismiss(animated: true)
+                if let newURL = newURL {
+                    Task {
+                        do {
+                            let newFileName = newURL.lastPathComponent
+                            
+                            if isOverwrite {
+                                // CASE 1: GHI ĐÈ
+                                try await MediaRepository.shared.updateAfterTrim(
+                                    itemID: item.id,
+                                    newRelativePath: newFileName,
+                                    newDuration: newDuration
+                                )
+                            } else {
+                                // CASE 2: TẠO FILE MỚI
+                                try await MediaRepository.shared.saveAsNewItem(
+                                    originalName: item.name,
+                                    relativePath: newFileName,
+                                    duration: newDuration
+                                )
+                            }
+                            
+                            // Xong xuôi -> Đóng loading -> Đóng màn hình Edit
+                            loadingAlert.dismiss(animated: true) {
+                                self.onDidSave?() // Báo reload
+                                self.dismiss(animated: true)
+                            }
+                            
+                        } catch {
+                            print("Lỗi DB: \(error)")
+                            loadingAlert.message = "Lỗi lưu dữ liệu"
+                        }
                     }
+                } else {
+                    loadingAlert.dismiss(animated: true)
+                    // Có thể hiện thêm 1 alert báo lỗi ở đây nếu muốn
                 }
             }
         }

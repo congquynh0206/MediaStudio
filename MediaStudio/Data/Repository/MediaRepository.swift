@@ -152,4 +152,43 @@ final class MediaRepository: MediaRepositoryType {
             }
         }.value
     }
+    
+    // Thay thế sau khi cut
+    func updateAfterTrim(itemID: String, newRelativePath: String, newDuration: Double) async throws {
+        try await Task { @MainActor in
+            let realm = try await Realm()
+            // Tìm bản ghi cũ
+            guard let item = realm.object(ofType: MediaItemObject.self, forPrimaryKey: itemID) else { return }
+            
+            if item.relativePath != newRelativePath {
+                let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                let oldFileURL = documents.appendingPathComponent(item.relativePath)
+                try? FileManager.default.removeItem(at: oldFileURL)
+            }
+            
+            // Cập nhật thông tin
+            try realm.write {
+                item.relativePath = newRelativePath
+                item.duration = newDuration
+            }
+        }.value
+    }
+    
+    // Tạo bản ghi mới
+    func saveAsNewItem(originalName: String, relativePath: String, duration: Double) async throws {
+        try await Task { @MainActor in
+            let realm = try await Realm()
+            
+            let newItem = MediaItemObject()
+            newItem.id = UUID().uuidString
+            newItem.name = "\(originalName) (Trimmed)" // Đổi tên để phân biệt
+            newItem.relativePath = relativePath
+            newItem.duration = duration
+            newItem.createdAt = Date()
+            
+            try realm.write {
+                realm.add(newItem)
+            }
+        }.value
+    }
 }

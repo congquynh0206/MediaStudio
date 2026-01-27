@@ -118,14 +118,12 @@ class PlayerViewController: UIViewController {
     }
     
     @IBAction func didTapEditButton(_ sender: Any) {
-        // 1. Lấy màn hình Edit từ Storyboard
-        let storyboard = UIStoryboard(name: "Library", bundle: nil) // Hoặc tên file storyboard của bạn
+        let storyboard = UIStoryboard(name: "Library", bundle: nil)
         if let editVC = storyboard.instantiateViewController(withIdentifier: "EditViewController") as? EditViewController {
             editVC.itemToEdit = self.itemToPlay
             
-            editVC.modalPresentationStyle = .fullScreen
+            editVC.modalPresentationStyle = .fullScreen     // Full màn
             
-            // 3. Mở lên
             present(editVC, animated: true)
         }
     }
