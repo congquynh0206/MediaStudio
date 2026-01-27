@@ -27,7 +27,7 @@ class RecorderViewController: UIViewController {
         recordButton.layer.cornerRadius = recordButton.frame.height / 2
         recordButton.backgroundColor = .systemRed
         recordButton.tintColor = .white
-        recordButton.setTitle("REC", for: .normal)
+        recordButton.setTitle("Ghi", for: .normal)
     }
     
     private func bindViewModel() {
@@ -44,10 +44,10 @@ class RecorderViewController: UIViewController {
             switch state {
             case .idle:
                 self?.recordButton.backgroundColor = .systemRed
-                self?.recordButton.setTitle("REC", for: .normal)
+                self?.recordButton.setTitle("Ghi", for: .normal)
             case .recording:
                 self?.recordButton.backgroundColor = .gray
-                self?.recordButton.setTitle("STOP", for: .normal)
+                self?.recordButton.setTitle("Dừng", for: .normal)
             case .error(let msg):
                 self?.showAlert(message: msg)
             }

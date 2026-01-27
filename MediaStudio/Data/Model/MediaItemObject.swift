@@ -16,6 +16,8 @@ class MediaItemObject: Object {
     @Persisted var duration: Double
     @Persisted var createdAt: Date
     @Persisted var isFavorite: Bool = false
+    @Persisted var isDeleted: Bool = false      
+    @Persisted var deletedDate: Date? = nil
     // Chuyển từ Struct sang Realm Object
     convenience init(from item: MediaItem) {
         self.init()
@@ -37,7 +39,9 @@ class MediaItemObject: Object {
             relativePath: self.relativePath,
             duration: self.duration,
             createdAt: self.createdAt,
-            isFavorite: self.isFavorite
+            isFavorite: self.isFavorite,
+            isDeleted: self.isDeleted,
+            deletedDate: self.deletedDate ?? Date()
         )
     }
 }

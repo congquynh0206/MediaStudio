@@ -147,7 +147,9 @@ class RecorderViewModel: NSObject {
             relativePath: currentFilename,
             duration: currentDuration,
             createdAt: Date(),
-            isFavorite: false
+            isFavorite: false,
+            isDeleted: false,
+            deletedDate: Date()
         )
         
         Task {

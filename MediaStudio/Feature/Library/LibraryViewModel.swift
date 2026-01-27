@@ -13,6 +13,7 @@ import AVFoundation
 class LibraryViewModel: NSObject {
     
     // Data Source
+    private var allItems: [MediaItem] = []
     private(set) var items: [MediaItem] = []
     
     // Callbacks
@@ -27,9 +28,44 @@ class LibraryViewModel: NSObject {
     func loadData() {
         Task {
             let allItems = await repository.fetchAll()
-            self.items = allItems.sorted(by: { $0.createdAt > $1.createdAt })
+            self.allItems = allItems.filter{ $0.isDeleted == false }
+            self.items = allItems.sorted(by: { $0.createdAt > $1.createdAt }).filter{ $0.isDeleted == false }
             self.onDataLoaded?()
         }
+    }
+    
+    // Search
+    func search(query: String) {
+        if query.isEmpty {
+            items = allItems
+        } else {
+            // Lọc theo tên
+            items = allItems.filter { item in
+                return item.name.localizedCaseInsensitiveContains(query)
+            }
+        }
+        // UI reload
+        onDataLoaded?()
+    }
+    
+    enum SortType {
+        case newest // Mới nhất
+        case oldest // Cũ nhất
+        case nameAZ // Tên A-Z
+    }
+    
+    func sort(by type: SortType) {
+        switch type {
+        case .newest:
+            items.sort { $0.createdAt > $1.createdAt }
+            
+        case .oldest:
+            items.sort { $0.createdAt < $1.createdAt }
+            
+        case .nameAZ:
+            items.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        }
+        onDataLoaded?()
     }
     
     // Logic phát nhạc
@@ -68,12 +104,7 @@ class LibraryViewModel: NSObject {
     func deleteItem(at index: Int) {
         let item = items[index]
         Task {
-            // Xóa file vật lý
-            try? FileManager.default.removeItem(at: item.fullFileURL!)
-            
-            // Xóa trong DB
-            try? await repository.delete(id: item.id)
-            
+            try? await repository.moveToTrash(id: item.id)
             // Reload
             loadData()
         }

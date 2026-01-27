@@ -8,9 +8,16 @@
 
 import UIKit
 
-class LibraryViewController: UIViewController {
-
+class LibraryViewController: UIViewController, UISearchResultsUpdating {
+    
     @IBOutlet weak var tableView: UITableView!
+    
+    @IBOutlet weak var trashButton: UIButton!
+
+        
+    
+    private let searchController = UISearchController(searchResultsController: nil)
+    
     
     private let viewModel = LibraryViewModel()
     
@@ -19,11 +26,65 @@ class LibraryViewController: UIViewController {
         title = "Danh Sách Ghi Âm"
         setupTableView()
         bindViewModel()
+        setupSearchController()
+        setupSortButton()
+        setupTrashButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.loadData()
+    }
+    private func setupSearchController() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false // Không làm tối màn hình
+        searchController.searchBar.placeholder = "Tìm kiếm"
+        
+        
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false // Luôn hiện
+    }
+    
+    // Nút sắp xếp
+    private func setupSortButton() {
+        let sortMenu = UIMenu(title: "Sắp xếp theo", children: [
+            UIAction(title: "Mới nhất", image: UIImage(systemName: "arrow.down.circle"), handler: { _ in
+                self.viewModel.sort(by: .newest)
+            }),
+            UIAction(title: "Cũ nhất", image: UIImage(systemName: "arrow.up.circle"), handler: { _ in
+                self.viewModel.sort(by: .oldest)
+            }),
+            UIAction(title: "Tên A-Z", image: UIImage(systemName: "textformat"), handler: { _ in
+                self.viewModel.sort(by: .nameAZ)
+            })
+        ])
+        
+        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease.circle"), primaryAction: nil, menu: sortMenu)
+        navigationItem.rightBarButtonItem = sortButton
+    }
+    
+    // Button thùng rác
+    private func setupTrashButton() {
+        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .bold, scale: .large)
+        
+        if #available(iOS 15.0, *) {
+            trashButton.configuration?.preferredSymbolConfigurationForImage = config
+        } else {
+            trashButton.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+        }
+        // Hiệu ứng bóng đổ (Shadow) cho nổi
+        trashButton.layer.shadowColor = UIColor.black.cgColor
+        trashButton.layer.shadowOpacity = 0.3
+        trashButton.layer.shadowOffset = CGSize(width: 0, height: 3)
+        trashButton.layer.shadowRadius = 5
+    }
+    
+    // MARK: - Delegate
+    // Hàm chạy mỗi khi gõ 1 chữ
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let text = searchController.searchBar.text else { return }
+        
+        viewModel.search(query: text)
     }
     
     private func setupTableView() {

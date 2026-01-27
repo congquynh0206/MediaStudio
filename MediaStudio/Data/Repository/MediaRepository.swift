@@ -12,7 +12,9 @@ import RealmSwift
 protocol MediaRepositoryType {
     func fetchAll() async -> [MediaItem]
     func save(item: MediaItem) async throws
-    func delete(id: String) async throws
+    func moveToTrash(id: String) async throws
+    func restoreFromTrash(id: String) async throws
+    func deletePermanently(id: String) async throws
 }
 
 final class MediaRepository: MediaRepositoryType {
@@ -60,15 +62,83 @@ final class MediaRepository: MediaRepositoryType {
         }.value
     }
     
-    func delete(id: String) async throws {
+    // soft delete
+    func moveToTrash(id: String) async throws {
+        try await Task { @MainActor in
+            let realm = try await Realm()
+            if let item = realm.object(ofType: MediaItemObject.self, forPrimaryKey: id) {
+                try realm.write {
+                    item.isDeleted = true
+                    item.deletedDate = Date() // Lưu thời điểm xóa
+                }
+            }
+        }.value
+    }
+    
+    // Hàm khôi phục
+    func restoreFromTrash(id: String) async throws {
+        try await Task { @MainActor in
+            let realm = try await Realm()
+            if let item = realm.object(ofType: MediaItemObject.self, forPrimaryKey: id) {
+                try realm.write {
+                    item.isDeleted = false
+                    item.deletedDate = nil
+                }
+            }
+        }.value
+    }
+    
+    // xoá vĩnh viễn
+    func deletePermanently(id: String) async throws {
         try await Task { @MainActor in
             let realm = try Realm()
             guard let object = realm.object(ofType: MediaItemObject.self, forPrimaryKey: id) else { return }
+            // Xoá file vật lý
+            let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let fileURL = documents.appendingPathComponent(object.relativePath)
+            
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+                print("Đã xóa file vật lý tại: \(fileURL.lastPathComponent)")
+            } catch {
+                print("Không tìm thấy file hoặc lỗi xóa: \(error)")
+            }
             
             try realm.write {
                 realm.delete(object)
             }
             print("Deleted from Realm: \(id)")
+        }.value
+    }
+    
+    // Xoá sau 30 ngày
+    func cleanupOldTrashItems() async throws {
+        try await Task { @MainActor in
+            let realm = try await Realm()
+            
+            // Tính thời điểm 30 ngày trước
+//            guard let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) else { return }
+            guard let thresholdDate = Calendar.current.date(byAdding: .minute, value: -5, to: Date()) else { return }
+            
+            // Tìm các file: Đang trong thùng rác và Ngày xóa < 30 ngày trước
+            let itemsToDelete = realm.objects(MediaItemObject.self)
+                .filter("isDeleted == true AND deletedDate < %@", thresholdDate)
+            
+            if itemsToDelete.isEmpty { return }
+            
+            let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            // Xóa sạch
+            try realm.write {
+                for item in itemsToDelete {
+                    // Xóa file vật lý
+                    let fileURL = documents.appendingPathComponent(item.relativePath)
+                    try? FileManager.default.removeItem(at: fileURL)
+                    
+                    // Xóa record
+                    realm.delete(item)
+                }
+            }
+            print("Đã dọn dẹp \(itemsToDelete.count) file rác quá hạn.")
         }.value
     }
     

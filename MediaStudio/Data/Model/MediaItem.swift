@@ -22,6 +22,8 @@ struct MediaItem: Identifiable, Hashable {
     let duration: TimeInterval
     let createdAt: Date
     var isFavorite: Bool
+    var isDeleted : Bool
+    var deletedDate : Date
     
     // Helper lấy đường dẫn file vật lý thực tế
     var fullFileURL: URL? {
