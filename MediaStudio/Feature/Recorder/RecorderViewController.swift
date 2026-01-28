@@ -43,14 +43,30 @@ class RecorderViewController: UIViewController {
         viewModel.onStateChanged = { [weak self] state in
             switch state {
             case .idle:
+                if self?.recordButton.currentTitle == "STOP" {
+                    self?.showSavedAlert()
+                }
+                
                 self?.recordButton.backgroundColor = .systemRed
                 self?.recordButton.setTitle("REC", for: .normal)
+                self?.timerLabel.text = "00:00"
             case .recording:
                 self?.recordButton.backgroundColor = .gray
                 self?.recordButton.setTitle("STOP", for: .normal)
             case .error(let msg):
                 self?.showAlert(message: msg)
             }
+        }
+    }
+    
+    // Alert
+    private func showSavedAlert() {
+        let alert = UIAlertController(title: "Saved", message: "The recording has been saved successfully!", preferredStyle: .alert)
+        present(alert, animated: true)
+        
+        // Tự tắt sau 1.5s
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            alert.dismiss(animated: true)
         }
     }
     

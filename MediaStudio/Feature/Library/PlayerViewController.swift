@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class PlayerViewController: UIViewController {
     @IBOutlet weak var nameLabel: UILabel!
@@ -16,16 +17,58 @@ class PlayerViewController: UIViewController {
     
     @IBOutlet weak var artworkImageView: UIImageView!
     
+    @IBOutlet weak var volumeLabel: UILabel!
+    @IBOutlet weak var volumeSlider: UISlider!
+    
     var itemToPlay: MediaItem?
     private var viewModel: PlayerViewModel!
     
     // Biến để kiểm tra user có đang kéo slider không
     private var isDraggingSlider = false
     
+    var currentVolume: Float = 1.0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupViewModel()
+        setupVolumeControl()
+    }
+    
+    private func setupViewModel() {
+        guard let item = itemToPlay else { return }
+        
+        viewModel = PlayerViewModel(item: item)
+        
+        // Hiển thị thông tin ban đầu
+        nameLabel.text = item.name
+        durationLabel.text = viewModel.durationString
+        timeSlider.maximumValue = Float(viewModel.duration)
+        
+        
+        // Lắng nghe cập nhật thời gian (Timer)
+        viewModel.onTimeUpdate = { [weak self] currentSeconds, timeString in
+            guard let self = self else { return }
+            // Nếu duration = 0 thì cập nhật lại
+            self.timeSlider.maximumValue = Float(self.viewModel.duration)
+            
+            
+            if !self.isDraggingSlider {
+                self.timeSlider.value = currentSeconds
+            }
+            self.currentTimeLabel.text = timeString
+        }
+        
+        // Trạng thái Play/Pause
+        viewModel.onStatusChanged = { [weak self] isPlaying in
+            let iconName = isPlaying ? "pause.fill" : "play.fill"
+            self?.playButton.setImage(UIImage(systemName: iconName), for: .normal)
+            if isPlaying {
+                self?.startRotating()
+            } else {
+                self?.stopRotating()
+            }
+        }
     }
     
     private func setupUI() {
@@ -49,38 +92,44 @@ class PlayerViewController: UIViewController {
         artworkImageView.layer.borderWidth = 2
         artworkImageView.layer.borderColor = UIColor.systemGray.cgColor
     }
+    // Volume
+    private func setupVolumeControl() {
+        // Min 0% - Max 200% (2.0)
+        volumeSlider.minimumValue = 0.0
+        volumeSlider.maximumValue = 2.0
+        volumeSlider.value = 1.0 // Mặc định 100%
+        
+        volumeSlider.thumbTintColor = .white
+        
+        volumeLabel.text = "Volume: 100%"
+        
+        // Lắng nghe sự kiện kéo
+        volumeSlider.addTarget(self, action: #selector(volumeChanged(_:)), for: .valueChanged)
+    }
     
-    private func setupViewModel() {
-        guard let item = itemToPlay else { return }
+    // Xử lý khi kéo volume
+    @objc func volumeChanged(_ slider: UISlider) {
+        currentVolume = slider.value
+        let percentage = Int(currentVolume * 100)
+        volumeLabel.text = "Volume: \(percentage)%"
         
-        viewModel = PlayerViewModel(item: item)
-        
-        // Hiển thị thông tin ban đầu
-        nameLabel.text = item.name
-        durationLabel.text = viewModel.durationString
-        timeSlider.maximumValue = Float(viewModel.duration)
-        
-        // Lắng nghe cập nhật thời gian (Timer)
-        viewModel.onTimeUpdate = { [weak self] currentSeconds, timeString in
-            guard let self = self else { return }
-            
-            if !self.isDraggingSlider {
-                self.timeSlider.value = currentSeconds
-            }
-            self.currentTimeLabel.text = timeString
-        }
-        
-        // Trạng thái Play/Pause
-        viewModel.onStatusChanged = { [weak self] isPlaying in
-            let iconName = isPlaying ? "pause.fill" : "play.fill"
-            self?.playButton.setImage(UIImage(systemName: iconName), for: .normal)
-            if isPlaying {
-                self?.startRotating()
-            } else {
-                self?.stopRotating()
+        applyVolumeToPlayer()
+    }
+    
+    // Hàm để kích âm lượng
+    private func applyVolumeToPlayer() {
+        guard let player = viewModel.player, let playerItem = player.currentItem else { return }
+        Task {
+            do {
+                if let audioMix = try await AudioHelper.createAudioMix(for: playerItem.asset, volume: currentVolume) {
+                    playerItem.audioMix = audioMix
+                }
+            } catch {
+                print("Lỗi chỉnh volume: \(error)")
             }
         }
     }
+    
     
     // MARK: - Actions
     

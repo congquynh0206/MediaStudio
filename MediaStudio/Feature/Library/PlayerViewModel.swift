@@ -19,7 +19,7 @@ class PlayerViewModel: NSObject {
     var onTimeUpdate: ((Float, String) -> Void)? // Trả về giá trị Slider, chuỗi 00:00
     var onStatusChanged: ((Bool) -> Void)?       // True = Đang chạy, False = Dừng
     
-    private var audioPlayer: AVAudioPlayer?
+    var player: AVPlayer?
     private var timer: Timer?
     
     init(item: MediaItem) {
@@ -32,17 +32,26 @@ class PlayerViewModel: NSObject {
     
     private func setupPlayer() {
         guard let url = item.fullFileURL else { return }
-        do {
-            // Cấu hình Session
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-            
-            // Init Player
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
-            audioPlayer?.delegate = self
-            audioPlayer?.prepareToPlay()
-        } catch {
-            print("Lỗi Player: \(error)")
+        
+        let playerItem = AVPlayerItem(url: url)
+        player = AVPlayer(playerItem: playerItem)
+        
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(playerDidFinishPlaying),
+            name: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem
+        )
+    }
+    
+    @objc private func playerDidFinishPlaying() {
+        Task { @MainActor in
+            stopTimer()
+            onStatusChanged?(false)
+            onTimeUpdate?(0, "00:00")
+            seek(to: 0) // Tua về đầu
+            updateNowPlayingInfo()
         }
     }
     // MARK: Setup lockscreen
@@ -83,35 +92,22 @@ class PlayerViewModel: NSObject {
     }
     
     func updateNowPlayingInfo() {
-        guard let player = audioPlayer else { return }
-        
-        var nowPlayingInfo = [String: Any]()
-        
-        // Tên
-        nowPlayingInfo[MPMediaItemPropertyTitle] = item.name
-        
-        // Ảnh bìa
-        if let image = UIImage(systemName: "opticaldisc") {
-            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in
-                return image
-            }
-        }
-        
-        // Thời gian
-        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player.duration
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player.isPlaying ? 1.0 : 0.0
-        
-        // Đẩy lên hệ thống
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        guard let player = player else { return }
+        var info = [String: Any]()
+        info[MPMediaItemPropertyTitle] = item.name
+        info[MPMediaItemPropertyPlaybackDuration] = duration
+        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
+        info[MPNowPlayingInfoPropertyPlaybackRate] = (player.timeControlStatus == .playing) ? 1.0 : 0.0
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
     
-    // MARK: Điều khiển
+    // MARK: - Điều khiển
     
     func togglePlayPause() {
-        guard let player = audioPlayer else { return }
+        guard let player = player else { return }
         
-        if player.isPlaying {
+        // Check rate để biết đang play hay pause
+        if player.timeControlStatus == .playing {
             player.pause()
             stopTimer()
             onStatusChanged?(false)
@@ -123,41 +119,38 @@ class PlayerViewModel: NSObject {
         updateNowPlayingInfo()
     }
     
-    // Tua
     func seek(to value: Float) {
-        // 0.0 đến 1.0
-        audioPlayer?.currentTime = TimeInterval(value)
+        let time = CMTime(seconds: Double(value), preferredTimescale: 600)
+        player?.seek(to: time)
         updateMetrics()
     }
     
     func seek(by seconds: TimeInterval) {
-        guard let player = audioPlayer else { return }
+        guard let player = player else { return }
+        let currentTime = player.currentTime().seconds
+        let newTime = currentTime + seconds
+        let duration = self.duration
         
-        // Tính thời gian mới
-        let newTime = player.currentTime + seconds
+        // Kẹp trong khoảng 0 -> duration
+        let clampedTime = max(0, min(newTime, duration))
         
-        // Check min max
-        let clampedTime = max(0, min(newTime, player.duration))
-        
-        // Tua
-        player.currentTime = clampedTime
-        
-        // Update UI
-        updateMetrics()
+        seek(to: Float(clampedTime))
     }
     
     var duration: TimeInterval {
-        return audioPlayer?.duration ?? 0
+        let seconds = player?.currentItem?.duration.seconds ?? 0
+        return seconds.isNaN ? 0 : seconds
     }
     
     var durationString: String {
         return formatTime(duration)
     }
     
-    // MARK: - Timer & Helper
+    // MARK: - Timer & Info
     
     private func startTimer() {
         stopTimer()
+        // Cập nhật mỗi 0.1s
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.updateMetrics()
@@ -171,17 +164,23 @@ class PlayerViewModel: NSObject {
     }
     
     private func updateMetrics() {
-        guard let player = audioPlayer else { return }
-        let current = player.currentTime
-        let timeString = formatTime(current)
+        guard let player = player else { return }
+        let current = player.currentTime().seconds
         
-        onTimeUpdate?(Float(current), timeString)
-        if Int(current * 10) % 10 == 0 {
+        // Xử lý trường hợp NaN (Lỗi chia cho 0)
+        let safeCurrent = current.isNaN ? 0 : current
+        let timeString = formatTime(safeCurrent)
+        
+        onTimeUpdate?(Float(safeCurrent), timeString)
+        
+        // Update lockscreen thỉnh thoảng
+        if Int(safeCurrent * 10) % 10 == 0 {
             updateNowPlayingInfo()
         }
     }
     
     private func formatTime(_ time: TimeInterval) -> String {
+        if time.isNaN || time.isInfinite { return "00:00" }
         let minutes = Int(time) / 60
         let seconds = Int(time) % 60
         return String(format: "%02d:%02d", minutes, seconds)

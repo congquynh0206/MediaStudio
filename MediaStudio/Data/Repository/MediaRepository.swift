@@ -181,7 +181,7 @@ final class MediaRepository: MediaRepositoryType {
             
             let newItem = MediaItemObject()
             newItem.id = UUID().uuidString
-            newItem.name = "\(originalName) (Trimmed)" // Đổi tên để phân biệt
+            newItem.name = "\(originalName) (Trimmed)" 
             newItem.relativePath = relativePath
             newItem.duration = duration
             newItem.createdAt = Date()

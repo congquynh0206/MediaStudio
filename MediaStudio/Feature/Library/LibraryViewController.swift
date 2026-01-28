@@ -14,8 +14,6 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     
     @IBOutlet weak var trashButton: UIButton!
 
-        
-    
     private let searchController = UISearchController(searchResultsController: nil)
     
     

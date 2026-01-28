@@ -22,13 +22,20 @@ class EditViewController: UIViewController {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var previewButton: UIButton!
     
+    @IBOutlet weak var volumeLabel: UILabel!
+    @IBOutlet weak var volumeSlider: UISlider!
+    
     // MARK: - Components
     private let selectionBox = UIView()
+    
+    private let playbackIndicator = UIView()
     
     // MARK: - Data & Player
     var itemToEdit: MediaItem?
     
     var onDidSave: (() -> Void)?
+    
+    var currentVolume: Float = 1.0
     
     // Trình phát nhạc
     var player: AVPlayer?
@@ -40,6 +47,8 @@ class EditViewController: UIViewController {
         
         setupUI()
         setupSelectionBox()
+        setupVolumeControl()
+        setupPlaybackIndicator()
     }
     
     override func viewDidLayoutSubviews() {
@@ -51,6 +60,15 @@ class EditViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopPreview()
+    }
+    
+    // Thanh chỉ
+    private func setupPlaybackIndicator() {
+        playbackIndicator.backgroundColor = .white
+        playbackIndicator.frame = CGRect(x: 0, y: 0, width: 2, height: 0)
+        playbackIndicator.isHidden = true
+        
+        waveformImageView.addSubview(playbackIndicator)
     }
     
     private func setupUI() {
@@ -82,10 +100,49 @@ class EditViewController: UIViewController {
         rangeSlider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         
         // Player
-        let playerItem = AVPlayerItem(url: fileURL)
+        let asset = AVURLAsset(url: fileURL)
+        let playerItem = AVPlayerItem(asset: asset)
         player = AVPlayer(playerItem: playerItem)
         
         updateLabels(start: 0, end: item.duration)
+    }
+    
+    // Volume
+    private func setupVolumeControl() {
+        // Min 0% - Max 200% (2.0)
+        volumeSlider.minimumValue = 0.0
+        volumeSlider.maximumValue = 2.0
+        volumeSlider.value = 1.0 // Mặc định 100%
+        
+        volumeSlider.thumbTintColor = .white
+        
+        volumeLabel.text = "Volume: 100%"
+        
+        // Lắng nghe sự kiện kéo
+        volumeSlider.addTarget(self, action: #selector(volumeChanged(_:)), for: .valueChanged)
+    }
+    
+    // Xử lý khi kéo volume
+    @objc func volumeChanged(_ slider: UISlider) {
+        currentVolume = slider.value
+        let percentage = Int(currentVolume * 100)
+        volumeLabel.text = "Volume: \(percentage)%"
+        
+        applyVolumeToPlayer()
+    }
+    
+    // Hàm để kích âm lượng
+    private func applyVolumeToPlayer() {
+        guard let playerItem = player?.currentItem else { return }
+        Task {
+            do {
+                if let audioMix = try await AudioHelper.createAudioMix(for: playerItem.asset, volume: currentVolume) {
+                    playerItem.audioMix = audioMix
+                }
+            } catch {
+                print("Lỗi chỉnh volume: \(error)")
+            }
+        }
     }
     
     private func setupSelectionBox() {
@@ -138,6 +195,7 @@ class EditViewController: UIViewController {
         
         let startTime = rangeSlider.lowerValue
         let endTime = rangeSlider.upperValue
+        let totalDuration = rangeSlider.maximumValue
         
         // Tua đến điểm bắt đầu (startTime)
         let targetTime = CMTime(seconds: startTime, preferredTimescale: 600)
@@ -148,9 +206,25 @@ class EditViewController: UIViewController {
         isPreviewing = true
         previewButton.setImage(UIImage(systemName: "stop.fill"), for: .normal)
         
+        // Bật thanh chỉ
+        playbackIndicator.isHidden = false
+        playbackIndicator.frame.size.height = waveformImageView.bounds.height
+        
         // Nếu chạy qua điểm End thì dừng lại
-        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(value: 1, timescale: 10), queue: .main) { [weak self] time in
+        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(value: 1, timescale: 30), queue: .main) { [weak self] time in
             guard let self = self else { return }
+            
+            let currentSeconds = time.seconds
+            
+            // Tính vị trí X trên màn hình
+            if totalDuration > 0 {
+                let ratio = CGFloat(currentSeconds / totalDuration)
+                let waveWidth = self.waveformImageView.bounds.width
+                let currentX = ratio * waveWidth
+                
+                // Di chuyển thanh kim chỉ
+                self.playbackIndicator.frame.origin.x = currentX
+            }
             
             if time.seconds >= endTime {
                 self.stopPreview()
@@ -168,6 +242,7 @@ class EditViewController: UIViewController {
             timeObserver = nil
         }
         previewButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+        playbackIndicator.isHidden = true
     }
     
     // MARK: - Helper
@@ -182,7 +257,7 @@ class EditViewController: UIViewController {
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
-    // MARK: - Cancel & Save
+    // MARK: - Cancel , Save
     @IBAction func didTapCancel(_ sender: Any) {
         dismiss(animated: true)
     }
@@ -200,7 +275,7 @@ class EditViewController: UIViewController {
             self?.processSave(isOverwrite: true)
         }
         
-        // Option C: Hủy
+        // Hủy
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
         alert.addAction(newFileAction)
@@ -210,7 +285,7 @@ class EditViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    // Hàm xử lý logic cắt và lưu vào DB (Được tách riêng để tái sử dụng)
+    // Hàm xử lý cắt và lưu vào DB
     private func processSave(isOverwrite: Bool) {
         guard let item = itemToEdit, let sourceURL = item.fullFileURL else { return }
         
@@ -222,8 +297,8 @@ class EditViewController: UIViewController {
         let loadingAlert = UIAlertController(title: "Processing...", message: nil, preferredStyle: .alert)
         present(loadingAlert, animated: true)
         
-        // Gọi hàm cắt file (Trim)
-        trimAudio(sourceURL: sourceURL, startTime: startTime, endTime: endTime) { [weak self] newURL in
+        // Gọi hàm cắt file
+        exportAudio(sourceURL: sourceURL, startTime: startTime, endTime: endTime, volume: currentVolume) { [weak self] newURL in
             guard let self = self else { return }
             
             // Xử lý Database trong luồng chính
@@ -234,14 +309,14 @@ class EditViewController: UIViewController {
                             let newFileName = newURL.lastPathComponent
                             
                             if isOverwrite {
-                                // CASE 1: GHI ĐÈ
+                                // Ghi đè
                                 try await MediaRepository.shared.updateAfterTrim(
                                     itemID: item.id,
                                     newRelativePath: newFileName,
                                     newDuration: newDuration
                                 )
                             } else {
-                                // CASE 2: TẠO FILE MỚI
+                                // Tạo file mới
                                 try await MediaRepository.shared.saveAsNewItem(
                                     originalName: item.name,
                                     relativePath: newFileName,
@@ -249,7 +324,7 @@ class EditViewController: UIViewController {
                                 )
                             }
                             
-                            // Xong xuôi -> Đóng loading -> Đóng màn hình Edit
+                            // Xong thi đóng loading và đóng màn hình edit
                             loadingAlert.dismiss(animated: true) {
                                 self.onDidSave?() // Báo reload
                                 self.dismiss(animated: true)
@@ -262,31 +337,48 @@ class EditViewController: UIViewController {
                     }
                 } else {
                     loadingAlert.dismiss(animated: true)
-                    // Có thể hiện thêm 1 alert báo lỗi ở đây nếu muốn
                 }
             }
         }
     }
     
-    private func trimAudio(sourceURL: URL, startTime: Double, endTime: Double, completion: @escaping (URL?) -> Void) {
-        let asset = AVAsset(url: sourceURL)
-        guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetAppleM4A) else {
-            completion(nil); return
-        }
-        let fileName = "Trimmed_\(Date().timeIntervalSince1970).m4a"
-        let outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+    private func exportAudio(sourceURL: URL, startTime: Double, endTime: Double, volume: Float, completion: @escaping (URL?) -> Void) {
+        let asset = AVURLAsset(url: sourceURL)
         
-        let start = CMTime(seconds: startTime, preferredTimescale: 1000)
-        let end = CMTime(seconds: endTime, preferredTimescale: 1000)
-        
-        exportSession.outputURL = outputURL
-        exportSession.outputFileType = .m4a
-        exportSession.timeRange = CMTimeRange(start: start, end: end)
-        
-        exportSession.exportAsynchronously {
-            switch exportSession.status {
-            case .completed: completion(outputURL)
-            default: completion(nil)
+        Task {
+            // Kiểm tra tính tương thích
+            guard await AVAssetExportSession.compatibility(ofExportPreset: AVAssetExportPresetAppleM4A, with: asset, outputFileType: .m4a) else {
+                print("Lỗi: M4A không tương thích với asset này")
+                completion(nil)
+                return
+            }
+            
+            // Tạo Session
+            guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetAppleM4A) else {
+                completion(nil); return
+            }
+            
+            let fileName = "Edit_\(Date().timeIntervalSince1970).m4a"
+            let outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+            
+            // Cấu hình thời gian
+            let start = CMTime(seconds: startTime, preferredTimescale: 1000)
+            let end = CMTime(seconds: endTime, preferredTimescale: 1000)
+            exportSession.timeRange = CMTimeRange(start: start, end: end)
+            
+            // Cấu hình Volume (Async)
+            if let audioMix = try? await AudioHelper.createAudioMix(for: asset, volume: volume) {
+                exportSession.audioMix = audioMix
+            }
+            
+            // Xuất file
+            do {
+                try await exportSession.export(to: outputURL, as: .m4a)
+                print("Xuất file thành công: \(outputURL)")
+                completion(outputURL)
+            } catch {
+                print("Lỗi Export: \(error)")
+                completion(nil)
             }
         }
     }
