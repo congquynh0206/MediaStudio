@@ -49,9 +49,6 @@ class PlayerViewController: UIViewController {
         // Lắng nghe cập nhật thời gian (Timer)
         viewModel.onTimeUpdate = { [weak self] currentSeconds, timeString in
             guard let self = self else { return }
-            // Nếu duration = 0 thì cập nhật lại
-            self.timeSlider.maximumValue = Float(self.viewModel.duration)
-            
             
             if !self.isDraggingSlider {
                 self.timeSlider.value = currentSeconds
@@ -68,6 +65,11 @@ class PlayerViewController: UIViewController {
             } else {
                 self?.stopRotating()
             }
+        }
+        // Duration
+        viewModel.onDurationChanged = { [weak self] duration, durationStr in
+            self?.timeSlider.maximumValue = duration
+            self?.durationLabel.text = durationStr
         }
     }
     

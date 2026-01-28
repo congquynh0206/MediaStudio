@@ -19,6 +19,11 @@ class PlayerViewModel: NSObject {
     var onTimeUpdate: ((Float, String) -> Void)? // Trả về giá trị Slider, chuỗi 00:00
     var onStatusChanged: ((Bool) -> Void)?       // True = Đang chạy, False = Dừng
     
+    var onDurationChanged: ((Float, String) -> Void)?
+    
+    // Biến để theo dõi sự thay đổi
+    private var durationObservation: NSKeyValueObservation?
+    
     var player: AVPlayer?
     private var timer: Timer?
     
@@ -35,6 +40,18 @@ class PlayerViewModel: NSObject {
         
         let playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
+        
+        // Vì tải lâu hơn nên đợi tải xong mới hiển thị
+        durationObservation = playerItem.observe(\.duration, options: [.new, .initial]) { [weak self] item, _ in
+            Task { @MainActor in
+                let duration = item.duration.seconds
+                if !duration.isNaN && duration > 0 {
+                    let durationString = self?.formatTime(duration) ?? "00:00"
+                    // Bắn tín hiệu ra ngoài View
+                    self?.onDurationChanged?(Float(duration), durationString)
+                }
+            }
+        }
         
         
         NotificationCenter.default.addObserver(
@@ -146,7 +163,7 @@ class PlayerViewModel: NSObject {
         return formatTime(duration)
     }
     
-    // MARK: - Timer & Info
+    // MARK: - Timer , Info
     
     private func startTimer() {
         stopTimer()

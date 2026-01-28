@@ -105,6 +105,7 @@ class LibraryViewModel: NSObject {
         onPlaybackStatusChanged?(false)
     }
     
+    // Xoá 1 item
     func deleteItem(at index: Int) {
         let item = items[index]
         Task {
@@ -114,6 +115,16 @@ class LibraryViewModel: NSObject {
         }
     }
     
+    // Xoá tất cả item trong list
+    func deleteAllItem (list : [MediaItem]){
+        for item in list {
+            if let index = self.items.firstIndex(where: { $0.id == item.id }) {
+                self.deleteItem(at: index)
+            }
+        }
+    }
+    
+    // Đổi tên
     func renameItem (index : Int, newName : String) {
         let item = items[index]
         Task{
@@ -122,6 +133,32 @@ class LibraryViewModel: NSObject {
                 loadData()
             }catch{
                 print("Lỗi đổi tên")
+            }
+        }
+    }
+    
+    // Merge
+    func mergeItems(selectedItems: [MediaItem], outputName: String, completion: @escaping (Bool, String?) -> Void) {
+        let urls = selectedItems.compactMap { $0.fullFileURL }
+        
+        Task {
+            do {
+                if let newURL = try await AudioHelper.mergeAudioFiles(audioURLs: urls, outputName: outputName) {
+                    let newDuration = try await AVURLAsset(url: newURL).load(.duration).seconds
+                    try await repository.saveAsNewItem(
+                        originalName: outputName,
+                        relativePath: newURL.lastPathComponent,
+                        duration: newDuration,
+                        isTrimmed: false
+                    )
+                    // Reload
+                    loadData()
+                    
+                    // Báo về cho View là thành công
+                    await MainActor.run { completion(true, nil) }
+                }
+            } catch {
+                await MainActor.run { completion(false, error.localizedDescription) }
             }
         }
     }

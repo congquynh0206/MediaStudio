@@ -175,13 +175,13 @@ final class MediaRepository: MediaRepositoryType {
     }
     
     // Tạo bản ghi mới
-    func saveAsNewItem(originalName: String, relativePath: String, duration: Double) async throws {
+    func saveAsNewItem(originalName: String, relativePath: String, duration: Double, isTrimmed : Bool) async throws {
         try await Task { @MainActor in
             let realm = try await Realm()
             
             let newItem = MediaItemObject()
             newItem.id = UUID().uuidString
-            newItem.name = "\(originalName) (Trimmed)" 
+            newItem.name = isTrimmed ? "\(originalName) (Trimmed)" : "\(originalName)" 
             newItem.relativePath = relativePath
             newItem.duration = duration
             newItem.createdAt = Date()

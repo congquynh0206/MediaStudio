@@ -320,7 +320,8 @@ class EditViewController: UIViewController {
                                 try await MediaRepository.shared.saveAsNewItem(
                                     originalName: item.name,
                                     relativePath: newFileName,
-                                    duration: newDuration
+                                    duration: newDuration,
+                                    isTrimmed: true
                                 )
                             }
                             

@@ -7,6 +7,7 @@
 
 
 import UIKit
+import AVFoundation
 
 class LibraryViewController: UIViewController, UISearchResultsUpdating {
     
@@ -15,6 +16,12 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     @IBOutlet weak var trashButton: UIButton!
 
     private let searchController = UISearchController(searchResultsController: nil)
+    
+    
+    private let bottomToolbar = UIToolbar()
+   
+    // Selected Lít
+    private var selectedItemsOrdered: [MediaItem] = []
     
     
     private let viewModel = LibraryViewModel()
@@ -29,6 +36,7 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
         setupSearchController()
         setupSortButton()
         setupTrashButton()
+        setupSelectModeUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -66,6 +74,55 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
         navigationItem.rightBarButtonItem = sortButton
     }
     
+    
+    private func setupSelectModeUI() {
+        // Nút Select góc trái
+        let selectButton = UIBarButtonItem(title: "Select", style: .plain, target: self, action: #selector(didTapSelectButton))
+        navigationItem.leftBarButtonItem = selectButton
+        
+        // Cho phép chọn nhiều dòng
+        tableView.allowsMultipleSelectionDuringEditing = true
+        
+        // Toolbar
+        view.addSubview(bottomToolbar)
+        bottomToolbar.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            bottomToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomToolbar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            bottomToolbar.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
+        // Tạo các nút trong Toolbar
+        let deleteBtn = UIBarButtonItem(title: "Delete All", style: .plain, target: self, action: #selector(didTapDeleteSelected))
+        deleteBtn.tintColor = .systemRed
+        
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        let mergeBtn = UIBarButtonItem(title: "Merge", style: .plain, target: self, action: #selector(didTapMergeSelected))
+        
+        bottomToolbar.items = [deleteBtn, spacer, mergeBtn]
+        bottomToolbar.isHidden = true // Mặc định ẩn
+    }
+    
+    @objc private func didTapSelectButton() {
+        let isEditing = !tableView.isEditing
+        tableView.setEditing(isEditing, animated: true)
+        
+        // Đổi tên
+        navigationItem.leftBarButtonItem?.title = isEditing ? "Cancel" : "Select"
+        navigationItem.leftBarButtonItem?.style = isEditing ? .done : .plain
+        
+        // Hiện/Ẩn Toolbar
+        bottomToolbar.isHidden = !isEditing
+        
+        // Reset danh sách chọn
+        selectedItemsOrdered.removeAll()
+        
+        // Ẩn các nút khác
+        navigationItem.rightBarButtonItem?.isEnabled = !isEditing // Nút sort
+    }
+    
     // Button thùng rác
     private func setupTrashButton() {
         let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .bold, scale: .large)
@@ -93,6 +150,8 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.showsVerticalScrollIndicator = false
+        tableView.showsHorizontalScrollIndicator = false
     }
     
     private func bindViewModel() {
@@ -101,8 +160,97 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
         }
         
         viewModel.onPlaybackStatusChanged = { isPlaying in
-            // Logic UI khi đang phát (ví dụ hiện Toast hoặc đổi màu cell)
-            print(isPlaying ? "Đang phát nhạc..." : "Đã dừng.")
+            print(isPlaying ? "Đang phát nhạc" : "Đã dừng.")
+        }
+    }
+    // Popup nhập tên
+    private func showRenameAlert(at indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Rename", message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.placeholder = "Enter a new name"
+            // Điền sẵn tên cũ
+            tf.text = self.viewModel.items[indexPath.row].name
+        }
+        
+        let okAction = UIAlertAction(title: "Save", style: .default) { _ in
+            if let newName = alert.textFields?.first?.text, !newName.isEmpty {
+                self.viewModel.renameItem(index: indexPath.row, newName: newName)
+            }
+        }
+        alert.addAction(okAction)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    // Chia sẻ file
+    private func shareItem(at indexPath: IndexPath) {
+        let item = viewModel.items[indexPath.row]
+        guard let url = item.fullFileURL else { return }
+        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        present(activityVC, animated: true)
+    }
+    
+    // Delete all
+    @objc private func didTapDeleteSelected() {
+        guard !selectedItemsOrdered.isEmpty else { return }
+        
+        let alert = UIAlertController(title: "Delete", message: "Are you sure you want to delete \(self.selectedItemsOrdered.count) files?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            
+            // Xóa trong ViewModel/Database
+            self.viewModel.deleteAllItem(list: self.selectedItemsOrdered)
+            
+            // Xong thì thoát chế độ Edit
+            self.didTapSelectButton()
+        }))
+        present(alert, animated: true)
+    }
+    
+    // Merge
+    @objc private func didTapMergeSelected() {
+        guard selectedItemsOrdered.count >= 2 else {
+            let alert = UIAlertController(title: "Warning", message: "Please select at least 2 files to merge.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        let alert = UIAlertController(title: "Merge Files", message: "The pairing order is the order in which you select your items. \nEnter new file name", preferredStyle: .alert)
+        
+        alert.addTextField { tf in
+            tf.placeholder = "File name"
+            tf.text = "Merged_Audio"
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+            guard let name = alert.textFields?.first?.text, !name.isEmpty else { return }
+            self.performMerge(outputName: name)
+        }))
+        
+        present(alert, animated: true)
+    }
+    
+    // Hàm xử lý Merge
+    private func performMerge(outputName: String) {
+        let loading = UIAlertController(title: "Processing...", message: nil, preferredStyle: .alert)
+        present(loading, animated: true)
+        viewModel.mergeItems(selectedItems: selectedItemsOrdered, outputName: outputName) { [weak self] success, errorMsg in
+            
+            // Update UI
+            loading.dismiss(animated: true)
+            
+            if success {
+                self?.didTapSelectButton() // Thoát chế độ chọn
+                // Báo thành công
+                let successAlert = UIAlertController(title: "Successfully", message: "The files have been merged.!", preferredStyle: .alert)
+                successAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                self?.present(successAlert, animated: true)
+                
+            } else {
+                print("Lỗi: \(errorMsg ?? "")")
+            }
         }
     }
 }
@@ -121,19 +269,30 @@ extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
     
-    // Bấm vào dòng để phát
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let selectedItem = viewModel.items[indexPath.row]
-//        viewModel.playItem(at: indexPath.row)
-        let storyboard = UIStoryboard(name: "Library", bundle: nil)
-        if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
-            playerVC.itemToPlay = selectedItem
-            
-            if let nav = navigationController {
-                nav.pushViewController(playerVC, animated: true)
-            } else {
-                present(playerVC, animated: true)
+        let item = viewModel.items[indexPath.row]
+        if tableView.isEditing {
+            selectedItemsOrdered.append(item)
+        } else {
+            let storyboard = UIStoryboard(name: "Library", bundle: nil)
+            if let playerVC = storyboard.instantiateViewController(withIdentifier: "PlayerViewController") as? PlayerViewController {
+                playerVC.itemToPlay = item
+                
+                if let nav = navigationController {
+                    nav.pushViewController(playerVC, animated: true)
+                } else {
+                    present(playerVC, animated: true)
+                }
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if tableView.isEditing {
+            // Nếu bỏ chọn -> Xóa khỏi danh sách theo dõi
+            let item = viewModel.items[indexPath.row]
+            if let index = selectedItemsOrdered.firstIndex(where: { $0.id == item.id }) {
+                selectedItemsOrdered.remove(at: index)
             }
         }
     }
@@ -164,33 +323,5 @@ extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
         shareAction.image = UIImage(systemName: "square.and.arrow.up")
         
         return UISwipeActionsConfiguration(actions: [deleteAction, renameAction, shareAction])
-    }
-    
-    // Popup nhập tên
-    private func showRenameAlert(at indexPath: IndexPath) {
-        let alert = UIAlertController(title: "Rename", message: nil, preferredStyle: .alert)
-        alert.addTextField { tf in
-            tf.placeholder = "Enter a new name..."
-            // Điền sẵn tên cũ
-            tf.text = self.viewModel.items[indexPath.row].name
-        }
-        
-        let okAction = UIAlertAction(title: "Save", style: .default) { _ in
-            if let newName = alert.textFields?.first?.text, !newName.isEmpty {
-                self.viewModel.renameItem(index: indexPath.row, newName: newName)
-            }
-        }
-        alert.addAction(okAction)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        
-        present(alert, animated: true)
-    }
-    
-    // Chia sẻ file
-    private func shareItem(at indexPath: IndexPath) {
-        let item = viewModel.items[indexPath.row]
-        guard let url = item.fullFileURL else { return }
-        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        present(activityVC, animated: true)
     }
 }
