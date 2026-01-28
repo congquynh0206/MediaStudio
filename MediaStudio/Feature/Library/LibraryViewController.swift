@@ -23,6 +23,8 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 90
         title = "Record List"
         setupTableView()
         bindViewModel()
@@ -93,7 +95,6 @@ class LibraryViewController: UIViewController, UISearchResultsUpdating {
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.rowHeight = 80
     }
     
     private func bindViewModel() {
@@ -142,14 +143,14 @@ extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         // Nút xoá
-        let deleteAction = UIContextualAction(style: .destructive, title: "Xóa") { [weak self] _, _, completion in
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
             self?.viewModel.deleteItem(at: indexPath.row)
             completion(true)
         }
         deleteAction.image = UIImage(systemName: "trash")
         
         // Nút đổi tên
-        let renameAction = UIContextualAction(style: .normal, title: "Đổi tên") { [weak self] _, _, completion in
+        let renameAction = UIContextualAction(style: .normal, title: "Rename") { [weak self] _, _, completion in
             self?.showRenameAlert(at: indexPath)
             completion(true)
         }
@@ -157,7 +158,7 @@ extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
         renameAction.image = UIImage(systemName: "pencil")
         
         // Nút share
-        let shareAction = UIContextualAction(style: .normal, title: "Gửi") { [weak self] _, _, completion in
+        let shareAction = UIContextualAction(style: .normal, title: "Share") { [weak self] _, _, completion in
             self?.shareItem(at: indexPath)
             completion(true)
         }
@@ -169,20 +170,20 @@ extension LibraryViewController: UITableViewDataSource, UITableViewDelegate {
     
     // Popup nhập tên
     private func showRenameAlert(at indexPath: IndexPath) {
-        let alert = UIAlertController(title: "Đổi tên", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: "Rename", message: nil, preferredStyle: .alert)
         alert.addTextField { tf in
-            tf.placeholder = "Nhập tên mới..."
+            tf.placeholder = "Enter a new name..."
             // Điền sẵn tên cũ
             tf.text = self.viewModel.items[indexPath.row].name
         }
         
-        let okAction = UIAlertAction(title: "Lưu", style: .default) { _ in
+        let okAction = UIAlertAction(title: "Save", style: .default) { _ in
             if let newName = alert.textFields?.first?.text, !newName.isEmpty {
                 self.viewModel.renameItem(index: indexPath.row, newName: newName)
             }
         }
         alert.addAction(okAction)
-        alert.addAction(UIAlertAction(title: "Hủy", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         present(alert, animated: true)
     }
