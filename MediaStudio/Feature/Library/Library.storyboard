@@ -190,18 +190,6 @@
                                     <action selector="didTapRewind:" destination="c1I-An-F8P" eventType="touchUpInside" id="ZOw-5N-b3Z"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bqI-Cj-hVO">
-                                <rect key="frame" x="303" y="118" width="60" height="30"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="60" id="Lr9-FJ-v6E"/>
-                                    <constraint firstAttribute="height" constant="30" id="RsT-vI-qb7"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Edit"/>
-                                <connections>
-                                    <action selector="didTapEditButton:" destination="c1I-An-F8P" eventType="touchUpInside" id="jQN-zb-0T8"/>
-                                </connections>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Volume: 100%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UXc-w8-HA6">
                                 <rect key="frame" x="15" y="586.66666666666663" width="110" height="30"/>
                                 <constraints>
@@ -214,6 +202,15 @@
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="fmN-7s-rO8">
                                 <rect key="frame" x="138" y="586.66666666666663" width="207" height="31"/>
                             </slider>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XXz-Nw-3xL">
+                                <rect key="frame" x="323" y="123" width="50" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="RhN-sP-S5X"/>
+                                    <constraint firstAttribute="width" constant="50" id="YoT-78-CXa"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="ellipsis.circle" catalog="system"/>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="DFf-jS-Uft"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -221,12 +218,8 @@
                             <constraint firstItem="fmN-7s-rO8" firstAttribute="top" secondItem="TX2-W6-gKy" secondAttribute="bottom" constant="20" id="1nm-54-ytT"/>
                             <constraint firstItem="Kxj-zO-cdr" firstAttribute="leading" secondItem="TX2-W6-gKy" secondAttribute="trailing" constant="20" id="6Eq-NU-jtO"/>
                             <constraint firstItem="wT8-za-LyW" firstAttribute="centerX" secondItem="SDU-hn-tKZ" secondAttribute="centerX" id="7i6-XQ-Nqp"/>
-                            <constraint firstAttribute="trailing" secondItem="bqI-Cj-hVO" secondAttribute="trailing" constant="30" id="93U-0S-HyO"/>
                             <constraint firstItem="TX2-W6-gKy" firstAttribute="top" secondItem="leF-20-RxJ" secondAttribute="bottom" constant="15" id="Aad-9u-hnO"/>
-                            <constraint firstItem="B4E-SF-3Vh" firstAttribute="leading" secondItem="DFf-jS-Uft" secondAttribute="leading" constant="15" id="D6x-WD-FsQ"/>
                             <constraint firstItem="glX-EV-rWa" firstAttribute="top" secondItem="wT8-za-LyW" secondAttribute="bottom" constant="30" id="IHK-kr-o23"/>
-                            <constraint firstItem="DFf-jS-Uft" firstAttribute="trailing" secondItem="1uM-QA-y2T" secondAttribute="trailing" constant="15" id="JDQ-1l-kE9"/>
-                            <constraint firstItem="bqI-Cj-hVO" firstAttribute="top" secondItem="DFf-jS-Uft" secondAttribute="top" id="KMV-4U-TJS"/>
                             <constraint firstItem="wT8-za-LyW" firstAttribute="top" secondItem="DFf-jS-Uft" secondAttribute="top" constant="70" id="Kq2-05-TJ5"/>
                             <constraint firstItem="B4E-SF-3Vh" firstAttribute="leading" secondItem="DFf-jS-Uft" secondAttribute="leading" constant="15" id="MJ6-J1-ZPz"/>
                             <constraint firstItem="UXc-w8-HA6" firstAttribute="leading" secondItem="DFf-jS-Uft" secondAttribute="leading" constant="15" id="Sxg-5T-onB"/>
@@ -234,6 +227,7 @@
                             <constraint firstItem="DFf-jS-Uft" firstAttribute="trailing" secondItem="1uM-QA-y2T" secondAttribute="trailing" constant="15" id="Tb1-LI-JdN"/>
                             <constraint firstItem="DFf-jS-Uft" firstAttribute="trailing" secondItem="fmN-7s-rO8" secondAttribute="trailing" constant="50" id="Tit-3y-RL0"/>
                             <constraint firstItem="fmN-7s-rO8" firstAttribute="leading" secondItem="UXc-w8-HA6" secondAttribute="trailing" constant="15" id="UvQ-ye-Igy"/>
+                            <constraint firstItem="XXz-Nw-3xL" firstAttribute="top" secondItem="DFf-jS-Uft" secondAttribute="top" constant="5" id="YAp-NZ-Mxs"/>
                             <constraint firstItem="DFf-jS-Uft" firstAttribute="trailing" secondItem="glX-EV-rWa" secondAttribute="trailing" constant="25" id="Z8j-LM-x97"/>
                             <constraint firstItem="TX2-W6-gKy" firstAttribute="leading" secondItem="StT-61-bbE" secondAttribute="trailing" constant="20" id="bzu-eV-wh9"/>
                             <constraint firstItem="StT-61-bbE" firstAttribute="top" secondItem="leF-20-RxJ" secondAttribute="bottom" constant="15" id="fS6-lq-wWz"/>
@@ -242,6 +236,7 @@
                             <constraint firstItem="leF-20-RxJ" firstAttribute="top" secondItem="glX-EV-rWa" secondAttribute="bottom" constant="15" id="nuz-lE-X9f"/>
                             <constraint firstItem="leF-20-RxJ" firstAttribute="leading" secondItem="DFf-jS-Uft" secondAttribute="leading" constant="15" id="nxc-qS-jPO"/>
                             <constraint firstItem="UXc-w8-HA6" firstAttribute="top" secondItem="TX2-W6-gKy" secondAttribute="bottom" constant="20" id="o07-Hv-Reu"/>
+                            <constraint firstItem="DFf-jS-Uft" firstAttribute="trailing" secondItem="XXz-Nw-3xL" secondAttribute="trailing" constant="20" id="vvC-Hc-W1u"/>
                             <constraint firstItem="TX2-W6-gKy" firstAttribute="centerX" secondItem="SDU-hn-tKZ" secondAttribute="centerX" id="xIl-Qv-9kO"/>
                             <constraint firstItem="DFf-jS-Uft" firstAttribute="trailing" secondItem="leF-20-RxJ" secondAttribute="trailing" constant="15" id="xSv-Yw-wfV"/>
                             <constraint firstItem="1uM-QA-y2T" firstAttribute="top" secondItem="leF-20-RxJ" secondAttribute="bottom" constant="15" id="ynq-rD-b46"/>
@@ -251,6 +246,7 @@
                         <outlet property="artworkImageView" destination="wT8-za-LyW" id="smB-eb-WHC"/>
                         <outlet property="currentTimeLabel" destination="B4E-SF-3Vh" id="SAb-AL-RKo"/>
                         <outlet property="durationLabel" destination="1uM-QA-y2T" id="y6h-cy-b8E"/>
+                        <outlet property="moreButton" destination="XXz-Nw-3xL" id="TaJ-AG-s6H"/>
                         <outlet property="nameLabel" destination="glX-EV-rWa" id="MiT-Gz-VGS"/>
                         <outlet property="playButton" destination="TX2-W6-gKy" id="dCd-4N-lf3"/>
                         <outlet property="timeSlider" destination="leF-20-RxJ" id="xO5-nA-swB"/>
@@ -493,6 +489,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="ellipsis.circle" catalog="system" width="128" height="123"/>
         <image name="gobackward.5" catalog="system" width="119" height="128"/>
         <image name="goforward.5" catalog="system" width="119" height="128"/>
         <image name="opticaldisc" catalog="system" width="128" height="123"/>

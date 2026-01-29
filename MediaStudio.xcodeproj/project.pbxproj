@@ -184,7 +184,8 @@
 				DEVELOPMENT_TEAM = 5V6V7382X4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MediaStudio/Resource/Info.plist;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MediaStudio cần quyền truy cập Micro để giúp bạn ghi âm";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MediaStudio needs access to the microphone to help you record.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MediaStudio needs this permission to convert your speech to text.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -213,7 +214,8 @@
 				DEVELOPMENT_TEAM = 5V6V7382X4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MediaStudio/Resource/Info.plist;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MediaStudio cần quyền truy cập Micro để giúp bạn ghi âm";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MediaStudio needs access to the microphone to help you record.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MediaStudio needs this permission to convert your speech to text.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

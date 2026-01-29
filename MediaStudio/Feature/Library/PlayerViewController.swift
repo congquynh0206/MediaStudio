@@ -15,6 +15,7 @@ class PlayerViewController: UIViewController {
     @IBOutlet weak var durationLabel: UILabel!
     @IBOutlet weak var playButton: UIButton!
     
+    @IBOutlet weak var moreButton: UIButton!
     @IBOutlet weak var artworkImageView: UIImageView!
     
     @IBOutlet weak var volumeLabel: UILabel!
@@ -33,6 +34,7 @@ class PlayerViewController: UIViewController {
         setupUI()
         setupViewModel()
         setupVolumeControl()
+        setupMoreMenu()
     }
     
     private func setupViewModel() {
@@ -72,6 +74,25 @@ class PlayerViewController: UIViewController {
             self?.durationLabel.text = durationStr
         }
     }
+    
+    // Tạo menu
+    private func setupMoreMenu() {
+        // Transcript
+        let transcriptAction = UIAction(title: "Transcript", image: UIImage(systemName: "doc.text")) { [weak self] _ in
+            self?.didTapTranscriptMenu()
+        }
+        
+        // Edit
+        let editAction = UIAction(title: "Edit Audio", image: UIImage(systemName: "scissors")) { [weak self] _ in
+            self?.openEditScreen()
+        }
+        let menu = UIMenu(title: "Options", children: [transcriptAction, editAction])
+        
+        // 4. Gán vào nút
+        moreButton.menu = menu
+        moreButton.showsMenuAsPrimaryAction = true
+    }
+    
     
     private func setupUI() {
         // Nút Play
@@ -168,15 +189,48 @@ class PlayerViewController: UIViewController {
         artworkImageView.layer.add(rotation, forKey: "spinningAnimation")
     }
     
-    @IBAction func didTapEditButton(_ sender: Any) {
+    // Mở edit
+    private func openEditScreen() {
         let storyboard = UIStoryboard(name: "Library", bundle: nil)
         if let editVC = storyboard.instantiateViewController(withIdentifier: "EditViewController") as? EditViewController {
             editVC.itemToEdit = self.itemToPlay
-            
-            editVC.modalPresentationStyle = .fullScreen     // Full màn
-            
+            editVC.modalPresentationStyle = .fullScreen
+            editVC.onDidSave = { [weak self] in
+                 self?.setupViewModel()
+            }
             present(editVC, animated: true)
         }
+    }
+    // Mở transcript
+    private func didTapTranscriptMenu() {
+        guard let item = itemToPlay, let url = item.fullFileURL else { return }
+        
+        let alert = UIAlertController(title: "Select Language", message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Tiếng Việt", style: .default, handler: { _ in
+            self.openTranscript(url: url, langCode: "vi-VN")
+        }))
+        
+        alert.addAction(UIAlertAction(title: "English (US)", style: .default, handler: { _ in
+            self.openTranscript(url: url, langCode: "en-US")
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    // Mở màn hình Transcript
+    private func openTranscript(url: URL, langCode: String) {
+        let transcriptVC = TranscriptViewController()
+        transcriptVC.audioURL = url
+        transcriptVC.selectedLocale = Locale(identifier: langCode) // Truyền ngôn ngữ sang
+        
+        if let sheet = transcriptVC.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(transcriptVC, animated: true)
     }
     
     // Hàm dừng xoay
