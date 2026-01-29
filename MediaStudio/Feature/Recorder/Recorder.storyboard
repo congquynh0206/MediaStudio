@@ -17,29 +17,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pdc-pp-CkY" customClass="VisualizerView" customModule="MediaStudio" customModuleProvider="target">
-                                <rect key="frame" x="30" y="178" width="333" height="353"/>
+                                <rect key="frame" x="30" y="178.00000000000003" width="333" height="376.66666666666674"/>
                                 <color key="backgroundColor" systemColor="systemGray3Color"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mpU-Pq-aCo">
-                                <rect key="frame" x="166.66666666666666" y="618" width="60" height="23"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="23" id="oW1-NQ-nRP"/>
-                                    <constraint firstAttribute="width" constant="60" id="qSP-1C-LSg"/>
-                                </constraints>
+                                <rect key="frame" x="173.66666666666666" y="654.66666666666663" width="46" height="20.333333333333371"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="vRg-qm-CWx">
-                                <rect key="frame" x="131" y="561" width="131" height="31"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="m0l-Ht-nUz"/>
-                                </constraints>
-                                <segments>
-                                    <segment title="First"/>
-                                    <segment title="Second"/>
-                                </segments>
-                            </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gfV-Gb-xQz">
                                 <rect key="frame" x="333" y="138" width="20" height="20"/>
                                 <constraints>
@@ -53,7 +39,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ob8-yE-GJq">
-                                <rect key="frame" x="168" y="671" width="57" height="39"/>
+                                <rect key="frame" x="168" y="695" width="57" height="39"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="REC"/>
                                 <connections>
@@ -66,13 +52,11 @@
                         <constraints>
                             <constraint firstItem="pdc-pp-CkY" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="30" id="5U6-IM-Reg"/>
                             <constraint firstItem="gfV-Gb-xQz" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="topMargin" constant="20" id="CcA-kt-1p9"/>
-                            <constraint firstItem="vRg-qm-CWx" firstAttribute="top" secondItem="pdc-pp-CkY" secondAttribute="bottom" constant="30" id="FtZ-wy-JmT"/>
                             <constraint firstItem="pdc-pp-CkY" firstAttribute="top" secondItem="gfV-Gb-xQz" secondAttribute="bottom" constant="20" id="PvB-gm-ORg"/>
                             <constraint firstItem="pdc-pp-CkY" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="Qdh-Di-tSu"/>
-                            <constraint firstItem="mpU-Pq-aCo" firstAttribute="top" secondItem="vRg-qm-CWx" secondAttribute="bottom" constant="27" id="RqT-cT-eno"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ob8-yE-GJq" secondAttribute="bottom" constant="74" id="gv1-6G-al5"/>
-                            <constraint firstItem="Ob8-yE-GJq" firstAttribute="top" secondItem="mpU-Pq-aCo" secondAttribute="bottom" constant="30" id="nOA-53-xbk"/>
-                            <constraint firstItem="vRg-qm-CWx" firstAttribute="centerX" secondItem="mpU-Pq-aCo" secondAttribute="centerX" id="qaj-Mh-0kj"/>
+                            <constraint firstItem="mpU-Pq-aCo" firstAttribute="top" secondItem="pdc-pp-CkY" secondAttribute="bottom" constant="100" id="b5E-EX-R3V"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ob8-yE-GJq" secondAttribute="bottom" constant="50" id="gv1-6G-al5"/>
+                            <constraint firstItem="Ob8-yE-GJq" firstAttribute="top" secondItem="mpU-Pq-aCo" secondAttribute="bottom" constant="20" id="nOA-53-xbk"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="gfV-Gb-xQz" secondAttribute="trailing" constant="40" id="r9w-ec-oLP"/>
                             <constraint firstItem="mpU-Pq-aCo" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="rAp-ue-ogi"/>
                             <constraint firstItem="Ob8-yE-GJq" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="un6-cy-4qA"/>

@@ -51,7 +51,7 @@ class RecorderViewModel: NSObject {
             startRecordingInternal()
             
         case .denied:
-            currentState = .error("Vui lòng vào Cài đặt cấp quyền Micro.")
+            currentState = .error("Please go to Settings and grant Microphone permissions")
             
         case .undetermined:
             AVAudioApplication.requestRecordPermission { [weak self] granted in
@@ -59,7 +59,7 @@ class RecorderViewModel: NSObject {
                     if granted {
                         self?.startRecordingInternal()
                     } else {
-                        self?.currentState = .error("Bạn cần cấp quyền Micro.")
+                        self?.currentState = .error("You need to grant Micro permission")
                     }
                 }
             }

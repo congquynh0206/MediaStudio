@@ -16,16 +16,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
+
+        let mainVC = MainViewController()
         
-        // Load Storyboard
-        let storyboard = UIStoryboard(name: "Recorder", bundle: nil)
+        window.rootViewController = mainVC
         
-        // Thêm guard let để check nil. Nếu quên tích thì nó in lỗi chứ không crash app.
-        guard let initialVC = storyboard.instantiateInitialViewController() else {
-            fatalError("Chưa tích 'Is Initial View Controller' trong Recorder.storyboard kìa bạn ơi!")
-        }
-        
-        window.rootViewController = initialVC
         self.window = window
         window.makeKeyAndVisible()
     }
