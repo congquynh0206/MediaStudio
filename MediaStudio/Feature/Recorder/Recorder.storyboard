@@ -17,33 +17,35 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pdc-pp-CkY" customClass="VisualizerView" customModule="MediaStudio" customModuleProvider="target">
-                                <rect key="frame" x="30" y="178.00000000000003" width="333" height="376.66666666666674"/>
+                                <rect key="frame" x="30" y="178.00000000000003" width="333" height="356.66666666666674"/>
                                 <color key="backgroundColor" systemColor="systemGray3Color"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mpU-Pq-aCo">
-                                <rect key="frame" x="173.66666666666666" y="654.66666666666663" width="46" height="20.333333333333371"/>
+                                <rect key="frame" x="173.66666666666666" y="634.66666666666663" width="46" height="20.333333333333371"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gfV-Gb-xQz">
-                                <rect key="frame" x="333" y="138" width="20" height="20"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="20" id="3h4-ag-IWE"/>
-                                    <constraint firstAttribute="width" constant="20" id="Tqh-oY-dgl"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="List"/>
-                                <connections>
-                                    <action selector="didTapListButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="veM-1L-jsz"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ob8-yE-GJq">
-                                <rect key="frame" x="168" y="695" width="57" height="39"/>
+                                <rect key="frame" x="168" y="675" width="57" height="39"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="REC"/>
                                 <connections>
                                     <action selector="didTapRecordButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="6RE-UX-iON"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gfV-Gb-xQz">
+                                <rect key="frame" x="68" y="674.66666666666663" width="40" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="JoS-0j-IDl"/>
+                                    <constraint firstAttribute="width" constant="40" id="aRF-lf-m4q"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="waveform" catalog="system">
+                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="didTapListButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="veM-1L-jsz"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -51,13 +53,13 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="pdc-pp-CkY" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="30" id="5U6-IM-Reg"/>
-                            <constraint firstItem="gfV-Gb-xQz" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="topMargin" constant="20" id="CcA-kt-1p9"/>
-                            <constraint firstItem="pdc-pp-CkY" firstAttribute="top" secondItem="gfV-Gb-xQz" secondAttribute="bottom" constant="20" id="PvB-gm-ORg"/>
+                            <constraint firstItem="Ob8-yE-GJq" firstAttribute="leading" secondItem="gfV-Gb-xQz" secondAttribute="trailing" constant="60" id="91P-2J-fpS"/>
+                            <constraint firstItem="gfV-Gb-xQz" firstAttribute="top" secondItem="pdc-pp-CkY" secondAttribute="bottom" constant="140" id="A2K-bl-kC1"/>
                             <constraint firstItem="pdc-pp-CkY" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="Qdh-Di-tSu"/>
+                            <constraint firstItem="pdc-pp-CkY" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" constant="60" id="Ugq-tw-drp"/>
                             <constraint firstItem="mpU-Pq-aCo" firstAttribute="top" secondItem="pdc-pp-CkY" secondAttribute="bottom" constant="100" id="b5E-EX-R3V"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ob8-yE-GJq" secondAttribute="bottom" constant="50" id="gv1-6G-al5"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ob8-yE-GJq" secondAttribute="bottom" constant="70" id="gv1-6G-al5"/>
                             <constraint firstItem="Ob8-yE-GJq" firstAttribute="top" secondItem="mpU-Pq-aCo" secondAttribute="bottom" constant="20" id="nOA-53-xbk"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="gfV-Gb-xQz" secondAttribute="trailing" constant="40" id="r9w-ec-oLP"/>
                             <constraint firstItem="mpU-Pq-aCo" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="rAp-ue-ogi"/>
                             <constraint firstItem="Ob8-yE-GJq" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="un6-cy-4qA"/>
                         </constraints>
@@ -74,6 +76,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="waveform" catalog="system" width="125" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

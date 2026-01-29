@@ -82,6 +82,13 @@ class CameraViewController: UIViewController {
         viewModel.switchCamera()
     }
     
+    @objc private func didTapLibrary() {
+        let listVC = VideoListViewController()
+        let nav = UINavigationController(rootViewController: listVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+    
     // Helper start button
     private func updateRecordButtonUI(isRecording: Bool) {
         timerLabel.isHidden = !isRecording
@@ -91,17 +98,34 @@ class CameraViewController: UIViewController {
                 self.recordButton.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
                 self.recordButton.layer.cornerRadius = 5
                 self.recordButton.backgroundColor = .white
+                
                 self.flipButton.isEnabled = false
                 self.flipButton.alpha = 0.5
+                
+                self.libraryButton.alpha = 0
+                self.libraryButton.isEnabled = false
             } else {
                 self.recordButton.transform = .identity
                 self.recordButton.layer.cornerRadius = 35
                 self.recordButton.backgroundColor = .red
+                
                 self.flipButton.isEnabled = true
                 self.flipButton.alpha = 1.0
+                
+                self.libraryButton.alpha = 1.0
+                self.libraryButton.isEnabled = true
             }
         }
     }
+    
+    
+    private let libraryButton: UIButton = {
+        let btn = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium)
+        btn.setImage(UIImage(systemName: "photo.stack", withConfiguration: config), for: .normal)
+        btn.tintColor = .white
+        return btn
+    }()
     
     private func setupUI() {
         view.backgroundColor = .black
@@ -115,6 +139,9 @@ class CameraViewController: UIViewController {
             previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             previewView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.68)
         ])
+        
+        view.addSubview(libraryButton) // Add nút mới
+        libraryButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Start Button
         view.addSubview(recordButton)
@@ -157,10 +184,16 @@ class CameraViewController: UIViewController {
             flipButton.leadingAnchor.constraint(equalTo: recordButton.trailingAnchor, constant: 40),
             flipButton.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
             flipButton.widthAnchor.constraint(equalToConstant: 50),
-            flipButton.heightAnchor.constraint(equalToConstant: 50)
+            flipButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            libraryButton.trailingAnchor.constraint(equalTo: recordButton.leadingAnchor, constant: -40),
+            libraryButton.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
+            libraryButton.widthAnchor.constraint(equalToConstant: 50),
+            libraryButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
         recordButton.addTarget(self, action: #selector(didTapRecord), for: .touchUpInside)
         flipButton.addTarget(self, action: #selector(didTapFlipCamera), for: .touchUpInside)
+        libraryButton.addTarget(self, action: #selector(didTapLibrary), for: .touchUpInside)
     }
 }

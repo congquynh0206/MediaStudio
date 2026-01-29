@@ -168,13 +168,16 @@ extension CameraViewModel: AVCaptureFileOutputRecordingDelegate {
             return
         }
         
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: outputFileURL)
-        }) { saved, error in
+        do {
+            try VideoRepository.shared.saveVideo(from: outputFileURL)
+            
+            // Báo thành công
             DispatchQueue.main.async {
-                if saved {
-                    self.onShowAlert?("Saved", "The video has been saved to Photos")
-                }
+                self.onShowAlert?("Saved!", "The video has been saved to the app's memory.")
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.onShowAlert?("Lỗi lưu file", error.localizedDescription)
             }
         }
     }
