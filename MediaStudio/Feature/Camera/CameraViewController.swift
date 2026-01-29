@@ -140,7 +140,7 @@ class CameraViewController: UIViewController {
             previewView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.68)
         ])
         
-        view.addSubview(libraryButton) // Add nút mới
+        view.addSubview(libraryButton)
         libraryButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Start Button

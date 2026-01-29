@@ -12,8 +12,10 @@ class RecorderViewController: UIViewController {
     
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var recordButton: UIButton!
-    @IBOutlet weak var visualizerView: VisualizerView! // Placeholder
-  
+    @IBOutlet weak var visualizerView: VisualizerView!
+    @IBOutlet weak var listButton: UIButton!
+    
+    
     private let viewModel = RecorderViewModel()
     
     override func viewDidLoad() {
@@ -28,6 +30,12 @@ class RecorderViewController: UIViewController {
         recordButton.backgroundColor = .systemRed
         recordButton.tintColor = .white
         recordButton.setTitle("REC", for: .normal)
+        
+        
+        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium)
+        let image = UIImage(systemName: "waveform", withConfiguration: config)
+
+        listButton.setImage(image, for: .normal)
     }
     
     private func bindViewModel() {

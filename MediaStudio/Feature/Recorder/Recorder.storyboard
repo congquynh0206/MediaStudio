@@ -65,6 +65,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="listButton" destination="gfV-Gb-xQz" id="ikt-UW-ovC"/>
                         <outlet property="recordButton" destination="Ob8-yE-GJq" id="JLV-yv-8ig"/>
                         <outlet property="timerLabel" destination="mpU-Pq-aCo" id="CyF-Xv-RdB"/>
                         <outlet property="visualizerView" destination="pdc-pp-CkY" id="Nlz-1j-m9v"/>
