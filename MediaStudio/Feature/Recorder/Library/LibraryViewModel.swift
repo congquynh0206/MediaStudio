@@ -28,9 +28,17 @@ class LibraryViewModel: NSObject {
     func loadData() {
         Task {
             let allItems = await repository.fetchAll()
-            self.allItems = allItems.filter{ $0.isDeleted == false }
-            self.items = allItems.sorted(by: { $0.createdAt > $1.createdAt }).filter{ $0.isDeleted == false }
-            self.onDataLoaded?()
+            let processedItems = allItems
+                .filter { item in
+                    return item.type == .audio && item.isDeleted == false
+                }
+                .sorted { $0.createdAt > $1.createdAt }
+            
+            // Update UI
+            await MainActor.run {
+                self.items = processedItems
+                self.onDataLoaded?()
+            }
         }
     }
     

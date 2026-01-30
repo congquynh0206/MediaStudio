@@ -21,9 +21,53 @@ class VideoListViewController: UIViewController {
         
         setupCollectionView()
         bindViewModel()
-        
-        // Nút đóng
+        setupNavigationBar()
+    }
+    
+    private func setupNavigationBar() {
+        // Nút Close bên trái
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Close", style: .done, target: self, action: #selector(didTapClose))
+        
+        // Nút Thùng rác bên phải
+        let trashBtn = UIBarButtonItem(image: UIImage(systemName: "trash"), style: .plain, target: self, action: #selector(didTapTrashButton))
+        navigationItem.rightBarButtonItem = trashBtn
+        
+        updateTitle()
+    }
+    
+    private func updateTitle() {
+        navigationItem.prompt = nil
+        if viewModel.currentMode == .normal {
+            title = "My Videos"
+            navigationItem.rightBarButtonItem?.image = UIImage(systemName: "trash")
+            navigationItem.rightBarButtonItem?.tintColor = .systemBlue
+        } else {
+            let titleLabel = UILabel()
+            titleLabel.text = "Trash Bin"
+            titleLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+            titleLabel.textColor = .label
+            titleLabel.textAlignment = .center
+            
+            // Label Phụ
+            let subtitleLabel = UILabel()
+            subtitleLabel.text = "Files auto-deleted after 30 days"
+            subtitleLabel.font = .systemFont(ofSize: 11, weight: .regular)
+            subtitleLabel.textColor = .systemGray
+            subtitleLabel.textAlignment = .center
+            
+            // Gom vào 1 cái StackView dọc
+            let stackView = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
+            stackView.axis = .vertical
+            stackView.alignment = .center
+            stackView.distribution = .fillProportionally
+            
+            navigationItem.rightBarButtonItem?.image = UIImage(systemName: "list.bullet")
+            navigationItem.rightBarButtonItem?.tintColor = .systemBlue
+            
+            // Gán StackView vào Title
+            navigationItem.titleView = stackView
+        }
+        navigationController?.view.setNeedsLayout()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,6 +83,12 @@ class VideoListViewController: UIViewController {
     
     @objc private func didTapClose() {
         dismiss(animated: true)
+    }
+    
+    @objc private func didTapTrashButton() {
+        // Đổi chế độ trong ViewModel
+        viewModel.toggleMode()
+        updateTitle()
     }
     
     // MARK: - Setup CollectionView
@@ -63,19 +113,20 @@ class VideoListViewController: UIViewController {
     private func playVideo(at index: Int) {
         let video = viewModel.videos[index]
         
-        // Tạo Player
-        let player = AVPlayer(url: video.fileURL)
+        guard let url = video.fullFileURL else {
+            print("Lỗi: Không tìm thấy đường dẫn file video")
+            return
+        }
         
-        // Tạo màn hình chứa Player
+        // Tạo Player
+        let player = AVPlayer(url: url)
+        
         let playerVC = AVPlayerViewController()
         playerVC.player = player
-        
-        // Cho phép phát tràn màn hình
         playerVC.entersFullScreenWhenPlaybackBegins = true
         
-        // Mở lên
         present(playerVC, animated: true) {
-            player.play() // Tự động chạy
+            player.play()
         }
     }
 }
@@ -100,54 +151,68 @@ extension VideoListViewController: UICollectionViewDataSource, UICollectionViewD
     }
     
     // Nhấn giữ hiện menu
+    
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            
-            let renameAction = UIAction(title: "Rename", image: UIImage(systemName: "pencil")) { _ in
-                self.showRenameAlert(at: indexPath)
-            }
-            
-            // 2. Action: Extract Audio 🎵
-            let extractAction = UIAction(title: "Extract Audio", image: UIImage(systemName: "waveform")) { _ in
-                // Hiện loading hoặc thông báo
-                let alert = UIAlertController(title: "Extracting...", message: "Please wait", preferredStyle: .alert)
-                self.present(alert, animated: true)
+            if self.viewModel.currentMode == .normal {
                 
-                self.viewModel.extractAudio(at: indexPath.row) { message in
-                    alert.dismiss(animated: true) {
-                        // Hiện thông báo kết quả
-                        let resultAlert = UIAlertController(title: "Result", message: message, preferredStyle: .alert)
-                        resultAlert.addAction(UIAlertAction(title: "OK", style: .default))
-                        self.present(resultAlert, animated: true)
+                // List
+                let rename = UIAction(title: "Rename", image: UIImage(systemName: "pencil")) { _ in
+                    self.showRenameAlert(at: indexPath)
+                }
+                
+                let extract = UIAction(title: "Extract Audio", image: UIImage(systemName: "waveform")) { _ in
+                    let alert = UIAlertController(title: "Extracting...", message: "Please wait", preferredStyle: .alert)
+                    self.present(alert, animated: true)
+                    
+                    self.viewModel.extractAudio(at: indexPath.row) { message in
+                        alert.dismiss(animated: true) {
+                            // Hiện thông báo kết quả
+                            let resultAlert = UIAlertController(title: "Result", message: message, preferredStyle: .alert)
+                            resultAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                            self.present(resultAlert, animated: true)
+                        }
                     }
                 }
+                
+                let shareAction = UIAction(title: "Share Video", image: UIImage(systemName: "square.and.arrow.up")) { _ in
+                    let video = self.viewModel.videos[indexPath.row]
+                    guard let url = video.fullFileURL else {return}
+                    let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                    self.present(activityVC, animated: true)
+                }
+                
+                let delete = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
+                    self.viewModel.moveToTrash(at: indexPath.row)
+                }
+                
+                return UIMenu(title: "Options", children: [rename, extract, shareAction, delete])
+                
+            } else {
+                
+                // Thùng rác
+                
+                // Restore
+                let restore = UIAction(title: "Restore", image: UIImage(systemName: "arrow.uturn.backward")) { _ in
+                    self.viewModel.restoreVideo(at: indexPath.row)
+                }
+                
+                // Xóa vĩnh viễn
+                let deleteForever = UIAction(title: "Delete Forever", image: UIImage(systemName: "xmark.bin.fill"), attributes: .destructive) { _ in
+                    
+                    let alert = UIAlertController(title: "Delete Permanently?", message: "This video will be lost forever.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                    alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+                        self.viewModel.deletePermanently(at: indexPath.row)
+                    }))
+                    self.present(alert, animated: true)
+                }
+                
+                return UIMenu(title: "Trash Options", children: [restore, deleteForever])
             }
-            
-            // Chia sẻ
-            let shareAction = UIAction(title: "Share Video", image: UIImage(systemName: "square.and.arrow.up")) { _ in
-                let video = self.viewModel.videos[indexPath.row]
-                let activityVC = UIActivityViewController(activityItems: [video.fileURL], applicationActivities: nil)
-                self.present(activityVC, animated: true)
-            }
-            
-            // Xoá
-            let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
-                // Hiện popup xác nhận cho chắc ăn
-                let alert = UIAlertController(title: "Delete Video?", message: "This action cannot be undone.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-                alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-                    // Xoá
-                    self.viewModel.deleteVideo(at: indexPath.row)
-                    collectionView.deleteItems(at: [indexPath])
-                }))
-                self.present(alert, animated: true)
-            }
-            
-            return UIMenu(title: "Options", children: [renameAction, extractAction, shareAction, deleteAction])
         }
     }
-    
     
     // Pop up đổi tên
     private func showRenameAlert(at indexPath: IndexPath) {
@@ -228,13 +293,52 @@ class VideoCell: UICollectionViewCell {
         ])
     }
     
-    func configure(with item: VideoItem) {
-        thumbnailImageView.image = item.thumbnail
+    func configure(with item: MediaItem) {
+        self.thumbnailImageView.image = UIImage(systemName: "film")
+        
+        if let url = item.fullFileURL {
+            generateThumbnail(url: url) { image in
+                // UI bắt buộc phải update trên Main Thread
+                DispatchQueue.main.async {
+                    self.thumbnailImageView.image = image
+                }
+            }
+        }
         
         // Format giây thành 00:00
         let min = Int(item.duration) / 60
         let sec = Int(item.duration) % 60
         durationLabel.text = String(format: " %02d:%02d ", min, sec)
         nameLabel.text = item.name
+    }
+    
+    // Hàm tạo thumbnail từ Video URL
+    private func generateThumbnail(url: URL, completion: @escaping (UIImage?) -> Void) {
+        Task {
+            
+            let asset = AVURLAsset(url: url)
+            let generator = AVAssetImageGenerator(asset: asset)
+            
+            // Giúp ảnh không bị xoay ngang/ngược
+            generator.appliesPreferredTrackTransform = true
+            generator.maximumSize = CGSize(width: 300, height: 300)
+            
+            do {
+                // Lấy frame ở giây thứ 0
+                let time = CMTime(seconds: 0.0, preferredTimescale: 600)
+                let (cgImage, _) = try await generator.image(at: time)
+                let image = UIImage(cgImage: cgImage)
+                
+                // Update UI
+                await MainActor.run {
+                    completion(image)
+                }
+            } catch {
+                print("Lỗi tạo thumbnail: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+            }
+        }
     }
 }

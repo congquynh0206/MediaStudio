@@ -9,47 +9,86 @@
 import Foundation
 import AVFoundation
 
+enum VideoListMode {
+    case normal
+    case trash
+}
+
 class VideoListViewModel {
     
-    private(set) var videos: [VideoItem] = []
+    private(set) var videos: [MediaItem] = []
     
     // Callback báo cho View reload
     var onDataLoaded: (() -> Void)?
     
+    var currentMode: VideoListMode = .normal
+    
     // Lấy dữ liệu từ kho
     func loadVideos() {
         Task {
-            self.videos = await VideoRepository.shared.fetchAllVideos()
+            if currentMode == .trash {
+                try? await MediaRepository.shared.cleanupOldTrashItems()
+            }
             
-            // Báo ra UI
+            let allItems = await MediaRepository.shared.fetchAll()
+            let filtered: [MediaItem]
+            switch currentMode {
+            case .normal:
+                // Lấy Video chưa xóa
+                filtered = allItems.filter { $0.type == .video && $0.isDeleted == false }
+            case .trash:
+                // Lấy Video đã xóa
+                filtered = allItems.filter { $0.type == .video && $0.isDeleted == true }
+            }
+            
+            // Sắp xếp mới nhất lên đầu
+            self.videos = filtered.sorted(by: { $0.createdAt > $1.createdAt })
+            
             await MainActor.run {
                 self.onDataLoaded?()
             }
         }
     }
     
-    // Xóa video
-    func deleteVideo(at index: Int) {
+    // Chuyển đổi chế độ (Normal <-> Trash)
+    func toggleMode() {
+        currentMode = (currentMode == .normal) ? .trash : .normal
+        loadVideos()
+    }
+    
+    // Xoaa mềm
+    func moveToTrash(at index: Int) {
         let item = videos[index]
-        do {
-            try VideoRepository.shared.deleteVideo(item: item)
-            videos.remove(at: index)
-        } catch {
-            print("Lỗi xóa video: \(error)")
+        Task {
+            try? await MediaRepository.shared.moveToTrash(id: item.id)
+            loadVideos()
+        }
+    }
+    
+    // Restore
+    func restoreVideo(at index: Int) {
+        let item = videos[index]
+        Task {
+            try? await MediaRepository.shared.restoreFromTrash(id: item.id)
+            loadVideos()
+        }
+    }
+    
+    // Xóa vĩnh viễn
+    func deletePermanently(at index: Int) {
+        let item = videos[index]
+        Task {
+            try? await MediaRepository.shared.deletePermanently(id: item.id)
+            loadVideos()
         }
     }
     
     // Đổi tên
     func renameVideo(at index: Int, newName: String) {
-        let video = videos[index]
-        do {
-            let newVideo = try VideoRepository.shared.renameVideo(video, newName: newName)
-            // Cập nhật lại danh sách dữ liệu
-            videos[index] = newVideo
-            // Reload
-            onDataLoaded?()
-        } catch {
-            print("Lỗi đổi tên: \(error)")
+        let item = videos[index]
+        Task {
+            try? await MediaRepository.shared.rename(id: item.id, newName: newName)
+            self.loadVideos()
         }
     }
     

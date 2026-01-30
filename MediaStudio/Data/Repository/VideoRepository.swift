@@ -32,7 +32,7 @@ class VideoRepository {
     }
     
     // Lưu Video
-    func saveVideo(from tempURL: URL) throws {
+    func saveVideo(from tempURL: URL) throws -> URL  {
         // Tạo tên file dựa trên ngày giờ
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd_HHmmss"
@@ -45,6 +45,8 @@ class VideoRepository {
             try FileManager.default.removeItem(at: destinationURL)
         }
         try FileManager.default.moveItem(at: tempURL, to: destinationURL)
+        
+        return destinationURL
     }
     
     // Lấy toàn bộ danh sách Video
@@ -93,6 +95,7 @@ class VideoRepository {
         let asset = AVURLAsset(url: url)
         let imageGenerator = AVAssetImageGenerator(asset: asset)
         imageGenerator.appliesPreferredTrackTransform = true // Để ảnh không bị xoay ngang/dọc sai
+        imageGenerator.maximumSize = CGSize(width: 500, height: 500)
         
         // Lấy ảnh ở giây thứ 1
         let time = CMTime(seconds: 1, preferredTimescale: 60)
@@ -119,33 +122,41 @@ class VideoRepository {
     }
     
     // Tách âm thanh
-    func extractAudio(from video: VideoItem) async throws -> URL {
-        // Đảm bảo thư mục Recordings tồn tại
+    func extractAudio(from video: MediaItem) async throws -> URL {
+        // Kiểm tra file gốc
+        guard let sourceURL = video.fullFileURL else {
+            throw NSError(domain: "App", code: -404, userInfo: [NSLocalizedDescriptionKey: "Không tìm thấy file video gốc (File path is nil)"])
+        }
+        
+        // Kiểm tra/Tạo thư mục đích
         if !FileManager.default.fileExists(atPath: audioFolderURL.path) {
             try? FileManager.default.createDirectory(at: audioFolderURL, withIntermediateDirectories: true)
         }
         
-        let asset = AVURLAsset(url: video.fileURL)
+        let asset = AVURLAsset(url: sourceURL)
         
         // Tạo Export Session
         guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetAppleM4A) else {
             throw NSError(domain: "App", code: -1, userInfo: [NSLocalizedDescriptionKey: "Không tạo được ExportSession"])
         }
         
-        // Tạo đường dẫn file đầu ra trong folder Recorder
-        let audioFileName = video.name.replacingOccurrences(of: ".mov", with: ".m4a")
-            .replacingOccurrences(of: ".mp4", with: ".m4a")
+        // Tạo tên file mới
+        let cleanName = video.name.replacingOccurrences(of: ".mov", with: "")
+            .replacingOccurrences(of: ".mp4", with: "")
         
+        let audioFileName = "Audio_\(cleanName).m4a"
         let outputURL = audioFolderURL.appendingPathComponent(audioFileName)
         
         // Xóa file cũ nếu trùng tên
-        try? FileManager.default.removeItem(at: outputURL)
+        if FileManager.default.fileExists(atPath: outputURL.path) {
+            try? FileManager.default.removeItem(at: outputURL)
+        }
         
         exportSession.outputURL = outputURL
         exportSession.outputFileType = .m4a
         
-        try await exportSession.export()
-        
+        // Thực hiện Export
+        try await exportSession.export(to: outputURL, as: .m4a)
         return outputURL
     }
     

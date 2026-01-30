@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import RealmSwift
 
 // Loại file
-enum MediaType: String, Codable {
+enum MediaType: String, Codable, PersistableEnum {
     case audio
     case video
 }
@@ -16,14 +17,14 @@ enum MediaType: String, Codable {
 
 struct MediaItem: Identifiable, Hashable {
     let id: String
-    let name: String
+    var name: String
     let type: MediaType
     let relativePath: String
-    let duration: TimeInterval
+    var duration: TimeInterval
     let createdAt: Date
     var isFavorite: Bool
     var isDeleted : Bool
-    var deletedDate : Date
+    var deletedDate : Date?
     
     // Helper lấy đường dẫn file vật lý thực tế
     var fullFileURL: URL? {

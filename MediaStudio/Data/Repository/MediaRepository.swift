@@ -117,7 +117,7 @@ final class MediaRepository: MediaRepositoryType {
             
             // Tính thời điểm 30 ngày trước
 //            guard let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) else { return }
-            guard let thresholdDate = Calendar.current.date(byAdding: .minute, value: -5, to: Date()) else { return }
+            guard let thresholdDate = Calendar.current.date(byAdding: .minute, value: -1, to: Date()) else { return }
             
             // Tìm các file: Đang trong thùng rác và Ngày xóa < 30 ngày trước
             let itemsToDelete = realm.objects(MediaItemObject.self)

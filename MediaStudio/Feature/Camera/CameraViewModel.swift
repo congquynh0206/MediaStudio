@@ -203,20 +203,46 @@ extension CameraViewModel: AVCaptureFileOutputRecordingDelegate {
         stopTimer()
         
         if let error = error {
-            onShowAlert?("Lỗi", error.localizedDescription)
+            DispatchQueue.main.async { self.onShowAlert?("Lỗi", error.localizedDescription) }
             return
         }
         
-        do {
-            try VideoRepository.shared.saveVideo(from: outputFileURL)
-            
-            // Báo thành công
-            DispatchQueue.main.async {
-                self.onShowAlert?("Saved!", "The video has been saved to the app's memory.")
-            }
-        } catch {
-            DispatchQueue.main.async {
-                self.onShowAlert?("Lỗi lưu file", error.localizedDescription)
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                let savedURL = try VideoRepository.shared.saveVideo(from: outputFileURL)
+                
+                // Tính toán đường dẫn tương đối
+                let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                let relativePath = savedURL.path.replacingOccurrences(of: documentsURL.path + "/", with: "")
+                
+                // Lấy duration
+                let asset = AVURLAsset(url: savedURL)
+                let duration = try await asset.load(.duration).seconds
+                
+                // Tạo Item
+                let newItem = MediaItem(
+                    id: UUID().uuidString,
+                    name: savedURL.lastPathComponent,
+                    type: .video, 
+                    relativePath: relativePath,
+                    duration: duration,
+                    createdAt: Date(),
+                    isFavorite: false,
+                    isDeleted: false,
+                    deletedDate: nil
+                )
+                
+                // 5. Lưu Realm
+                try await MediaRepository.shared.save(item: newItem)
+                
+                await MainActor.run {
+                    self.onShowAlert?("Saved", "The video has been saved to the Library")
+                }
+            } catch {
+                await MainActor.run {
+                    self.onShowAlert?("Lỗi lưu file", error.localizedDescription)
+                }
             }
         }
     }

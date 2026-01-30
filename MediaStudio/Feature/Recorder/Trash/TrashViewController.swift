@@ -40,7 +40,7 @@ class TrashViewController: UIViewController, UITableViewDataSource, UITableViewD
         
         // Tạo Label
         let label = UILabel()
-        label.text = "Files will be automatically deleted after 30 days."
+        label.text = "Files will be automatically deleted after 30 days"
         label.textColor = .secondaryLabel // Màu chữ xám
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textAlignment = .center

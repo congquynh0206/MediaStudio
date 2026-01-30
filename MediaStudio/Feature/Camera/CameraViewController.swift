@@ -144,7 +144,7 @@ class CameraViewController: UIViewController {
     
     private let libraryButton: UIButton = {
         let btn = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium)
+        let config = UIImage.SymbolConfiguration(pointSize: 25, weight: .medium)
         btn.setImage(UIImage(systemName: "photo.stack", withConfiguration: config), for: .normal)
         btn.tintColor = .white
         return btn

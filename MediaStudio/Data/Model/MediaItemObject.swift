@@ -11,7 +11,7 @@ import RealmSwift
 class MediaItemObject: Object {
     @Persisted(primaryKey: true) var id: String
     @Persisted var name: String
-    @Persisted var typeString: String
+    @Persisted var type: MediaType = .audio
     @Persisted var relativePath: String
     @Persisted var duration: Double
     @Persisted var createdAt: Date
@@ -23,11 +23,13 @@ class MediaItemObject: Object {
         self.init()
         self.id = item.id
         self.name = item.name
-        self.typeString = item.type.rawValue
+        self.type = item.type
         self.relativePath = item.relativePath
         self.duration = item.duration
         self.createdAt = item.createdAt
         self.isFavorite = item.isFavorite
+        self.isDeleted = item.isDeleted
+        self.deletedDate = item.deletedDate
     }
     
     // Chuyển từ Realm Object về Struct
@@ -35,13 +37,13 @@ class MediaItemObject: Object {
         return MediaItem(
             id: self.id,
             name: self.name,
-            type: MediaType(rawValue: self.typeString) ?? .audio,
+            type: self.type,
             relativePath: self.relativePath,
             duration: self.duration,
             createdAt: self.createdAt,
             isFavorite: self.isFavorite,
             isDeleted: self.isDeleted,
-            deletedDate: self.deletedDate ?? Date()
+            deletedDate: self.deletedDate
         )
     }
 }
