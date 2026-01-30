@@ -21,7 +21,6 @@ final class MediaRepository: MediaRepositoryType {
     
     static let shared = MediaRepository()
     
-    // Init private để đảm bảo Singleton
     private init() {
         printRealmPath()
     }

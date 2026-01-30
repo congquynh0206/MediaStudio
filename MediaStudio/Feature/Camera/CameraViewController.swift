@@ -35,6 +35,7 @@ class CameraViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.startSession()
+        updateFlashButtonVisibility()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -69,6 +70,16 @@ class CameraViewController: UIViewController {
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self?.present(alert, animated: true)
         }
+        
+        viewModel.onFlashModeChanged = { [weak self] isOn in
+            let iconName = isOn ? "bolt.fill" : "bolt.slash.fill"
+            let color: UIColor = isOn ? .systemYellow : .white
+            
+            UIView.transition(with: self?.flashButton ?? UIView(), duration: 0.2, options: .transitionCrossDissolve) {
+                self?.flashButton.setImage(UIImage(systemName: iconName), for: .normal)
+                self?.flashButton.tintColor = color
+            }
+        }
     }
     
     // Action
@@ -80,13 +91,25 @@ class CameraViewController: UIViewController {
         // Animation UI
         UIView.transition(with: flipButton, duration: 0.3, options: .transitionFlipFromLeft, animations: nil)
         viewModel.switchCamera()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.updateFlashButtonVisibility()
+        }
     }
     
     @objc private func didTapLibrary() {
         let listVC = VideoListViewController()
         let nav = UINavigationController(rootViewController: listVC)
-        nav.modalPresentationStyle = .fullScreen
+        nav.modalPresentationStyle = .pageSheet
         present(nav, animated: true)
+    }
+    
+    @objc private func didTapFlash(){
+        viewModel.toggleTorch()
+    }
+    
+    // Check xem cam này có fláh k
+    private func updateFlashButtonVisibility() {
+        flashButton.isHidden = !viewModel.hasTorch
     }
     
     // Helper start button
@@ -127,6 +150,14 @@ class CameraViewController: UIViewController {
         return btn
     }()
     
+    private let flashButton: UIButton = {
+        let btn = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 25, weight: .medium)
+        btn.setImage(UIImage(systemName: "bolt.slash.fill", withConfiguration: config), for: .normal)
+        btn.tintColor = .white
+        return btn
+    }()
+    
     private func setupUI() {
         view.backgroundColor = .black
         // Preview
@@ -142,6 +173,9 @@ class CameraViewController: UIViewController {
         
         view.addSubview(libraryButton)
         libraryButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(flashButton)
+        flashButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Start Button
         view.addSubview(recordButton)
@@ -189,11 +223,17 @@ class CameraViewController: UIViewController {
             libraryButton.trailingAnchor.constraint(equalTo: recordButton.leadingAnchor, constant: -40),
             libraryButton.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
             libraryButton.widthAnchor.constraint(equalToConstant: 50),
-            libraryButton.heightAnchor.constraint(equalToConstant: 50)
+            libraryButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            flashButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            flashButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            flashButton.widthAnchor.constraint(equalToConstant: 44),
+            flashButton.heightAnchor.constraint(equalToConstant: 44)
         ])
         
         recordButton.addTarget(self, action: #selector(didTapRecord), for: .touchUpInside)
         flipButton.addTarget(self, action: #selector(didTapFlipCamera), for: .touchUpInside)
         libraryButton.addTarget(self, action: #selector(didTapLibrary), for: .touchUpInside)
+        flashButton.addTarget(self, action: #selector(didTapFlash), for: .touchUpInside)
     }
 }

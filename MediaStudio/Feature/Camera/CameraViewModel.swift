@@ -17,6 +17,7 @@ class CameraViewModel: NSObject {
     var onRecordingStateChanged: ((Bool) -> Void)? // true = đang quay, false = dừng
     var onTimerUpdate: ((String) -> Void)?
     var onSessionReady: ((AVCaptureSession) -> Void)? // Báo cho View biết Session đã sẵn sàng để hiện Preview
+    var onFlashModeChanged: ((Bool) -> Void)? // true = Đèn đang sáng
     
     private var captureSession: AVCaptureSession?
     private var videoOutput = AVCaptureMovieFileOutput()
@@ -25,6 +26,43 @@ class CameraViewModel: NSObject {
     // Timer
     private var recordingTimer: Timer?
     private var recordingCounter: Int = 0
+    
+    
+    
+    // Kiểm tra xem Camera hiện tại có đèn không
+    var hasTorch: Bool {
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: currentPosition) else {
+            return false
+        }
+        return device.hasTorch
+    }
+    
+    // Hàm bật/tăst đèn
+    func toggleTorch() {
+        // Tìm đúng thiết bị đang dùng
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: currentPosition),
+              device.hasTorch else { return }
+        
+        do {
+            // Lock trước khi chỉnh
+            try device.lockForConfiguration()
+            
+            if device.torchMode == .on {
+                device.torchMode = .off
+                onFlashModeChanged?(false)
+            } else {
+                // bật mức sáng nhất
+                try device.setTorchModeOn(level: 1.0)
+                onFlashModeChanged?(true) // Báo UI
+            }
+            
+            // Unlock
+            device.unlockForConfiguration()
+            
+        } catch {
+            print("Lỗi bật đèn: \(error)")
+        }
+    }
     
     // Kiểm tra và Setup
     func checkPermissions() {
@@ -125,6 +163,7 @@ class CameraViewModel: NSObject {
         }
         
         session.commitConfiguration()
+        onFlashModeChanged?(false)
     }
     
     

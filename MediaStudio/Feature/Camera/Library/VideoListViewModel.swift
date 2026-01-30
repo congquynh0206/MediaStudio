@@ -63,9 +63,10 @@ class VideoListViewModel {
                 let audioURL = try await VideoRepository.shared.extractAudio(from: video)
                 
                 //  Path
-                let audioFileName = audioURL.lastPathComponent
+                let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                 let audioFileName = audioURL.path.replacingOccurrences(of: documentsURL.path + "/", with: "")
                 
-                // Logic đặt tên hiển thị
+                // Logic đặt tên
                 let displayName = "Audio_separation_" + video.name.replacingOccurrences(of: ".mov", with: "").replacingOccurrences(of: ".mp4", with: "") + ".m4a"
                 
                 let asset = AVURLAsset(url: audioURL)
