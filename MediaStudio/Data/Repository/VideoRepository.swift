@@ -94,7 +94,7 @@ class VideoRepository {
     private func generateThumbnail(for url: URL) async -> UIImage? {
         let asset = AVURLAsset(url: url)
         let imageGenerator = AVAssetImageGenerator(asset: asset)
-        imageGenerator.appliesPreferredTrackTransform = true // Để ảnh không bị xoay ngang/dọc sai
+        imageGenerator.appliesPreferredTrackTransform = true // Để ảnh không bị xoay 
         imageGenerator.maximumSize = CGSize(width: 500, height: 500)
         
         // Lấy ảnh ở giây thứ 1

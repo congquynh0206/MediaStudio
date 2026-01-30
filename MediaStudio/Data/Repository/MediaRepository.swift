@@ -8,7 +8,6 @@
 import Foundation
 import RealmSwift
 
-// Protocol để sau này dễ Mocking/Testing
 protocol MediaRepositoryType {
     func fetchAll() async -> [MediaItem]
     func save(item: MediaItem) async throws

@@ -15,5 +15,5 @@ struct VideoItem: Identifiable {
     let fileURL: URL
     let createdAt: Date
     let duration: Double
-    var thumbnail: UIImage? // Ảnh đại diện video
+    var thumbnail: UIImage? 
 }
