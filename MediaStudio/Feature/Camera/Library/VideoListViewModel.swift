@@ -18,6 +18,9 @@ class VideoListViewModel {
     
     private(set) var videos: [MediaItem] = []
     
+    private var originalVideos: [MediaItem] = []
+    private var currentSearchText: String = ""
+    
     // Callback báo cho View reload
     var onDataLoaded: (() -> Void)?
     
@@ -31,26 +34,43 @@ class VideoListViewModel {
             }
             
             let allItems = await MediaRepository.shared.fetchAll()
-            let filtered: [MediaItem]
+            
+            let filteredByMode: [MediaItem]
             switch currentMode {
             case .normal:
-                // Lấy Video chưa xóa
-                filtered = allItems.filter { $0.type == .video && $0.isDeleted == false }
+                filteredByMode = allItems.filter { $0.type == .video && $0.isDeleted == false }
             case .trash:
-                // Lấy Video đã xóa
-                filtered = allItems.filter { $0.type == .video && $0.isDeleted == true }
+                filteredByMode = allItems.filter { $0.type == .video && $0.isDeleted == true }
             }
             
-            // Sắp xếp mới nhất lên đầu
-            self.videos = filtered.sorted(by: { $0.createdAt > $1.createdAt })
+            self.originalVideos = filteredByMode.sorted(by: { $0.createdAt > $1.createdAt })
             
+            self.filterVideos(by: self.currentSearchText)
             await MainActor.run {
                 self.onDataLoaded?()
             }
         }
     }
     
-    // Chuyển đổi chế độ (Normal <-> Trash)
+    // Hàm search
+    func search(query: String) {
+        self.currentSearchText = query
+        filterVideos(by: query)
+        self.onDataLoaded?()
+    }
+    
+    // Logic search
+    private func filterVideos(by query: String) {
+        if query.isEmpty {
+            self.videos = self.originalVideos
+        } else {
+            self.videos = self.originalVideos.filter { item in
+                return item.name.localizedCaseInsensitiveContains(query)
+            }
+        }
+    }
+    
+    // Chuyển đổi chế độ 
     func toggleMode() {
         currentMode = (currentMode == .normal) ? .trash : .normal
         loadVideos()
@@ -120,7 +140,6 @@ class VideoListViewModel {
                     relativePath: audioFileName,
                     duration: duration,
                     createdAt: Date(),
-                    isFavorite: false,
                     isDeleted: false,
                     deletedDate: Date()
                 )

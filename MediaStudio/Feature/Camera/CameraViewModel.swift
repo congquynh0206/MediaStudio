@@ -228,7 +228,6 @@ extension CameraViewModel: AVCaptureFileOutputRecordingDelegate {
                     relativePath: relativePath,
                     duration: duration,
                     createdAt: Date(),
-                    isFavorite: false,
                     isDeleted: false,
                     deletedDate: nil
                 )

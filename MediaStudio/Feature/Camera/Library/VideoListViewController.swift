@@ -9,10 +9,11 @@
 import UIKit
 import AVKit
 
-class VideoListViewController: UIViewController {
+class VideoListViewController: UIViewController, UISearchResultsUpdating {
     
     private var collectionView: UICollectionView!
     private let viewModel = VideoListViewModel()
+    private let searchController  = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +23,7 @@ class VideoListViewController: UIViewController {
         setupCollectionView()
         bindViewModel()
         setupNavigationBar()
+        setupSearchController()
     }
     
     private func setupNavigationBar() {
@@ -33,6 +35,27 @@ class VideoListViewController: UIViewController {
         navigationItem.rightBarButtonItem = trashBtn
         
         updateTitle()
+    }
+    // Search
+    private func setupSearchController() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false   // ko làm tối màn khi search
+        searchController.searchBar.placeholder = "Search videos"
+        
+        // Gắn vào Navigation Bar
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        
+        definesPresentationContext = true
+    }
+    
+    // Chạy mỗi khi user gõ
+    func updateSearchResults(for searchController: UISearchController) {
+        // Lấy text user gõ
+        guard let text = searchController.searchBar.text else { return }
+        
+        // Gọi ViewModel lọc
+        viewModel.search(query: text)
     }
     
     private func updateTitle() {
@@ -77,7 +100,10 @@ class VideoListViewController: UIViewController {
     
     private func bindViewModel() {
         viewModel.onDataLoaded = { [weak self] in
-            self?.collectionView.reloadData()
+            // Dùng performWithoutAnimation để tắt hiệu ứng nháy
+            UIView.performWithoutAnimation {
+                self?.collectionView.reloadData()
+            }
         }
     }
     
@@ -294,7 +320,6 @@ class VideoCell: UICollectionViewCell {
     }
     
     func configure(with item: MediaItem) {
-        self.thumbnailImageView.image = UIImage(systemName: "film")
         
         if let url = item.fullFileURL {
             generateThumbnail(url: url) { image in

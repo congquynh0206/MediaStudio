@@ -22,7 +22,6 @@ struct MediaItem: Identifiable, Hashable {
     let relativePath: String
     var duration: TimeInterval
     let createdAt: Date
-    var isFavorite: Bool
     var isDeleted : Bool
     var deletedDate : Date?
     
