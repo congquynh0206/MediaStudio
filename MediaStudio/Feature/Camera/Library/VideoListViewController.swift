@@ -183,6 +183,19 @@ extension VideoListViewController: UICollectionViewDataSource, UICollectionViewD
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             if self.viewModel.currentMode == .normal {
                 
+                let trimAction = UIAction(title: "Trim Video", image: UIImage(systemName: "scissors")) { _ in
+                    let video = self.viewModel.videos[indexPath.row]
+                    
+                    // Mở màn hình Edit
+                    let editVC = VideoEditViewController()
+                    editVC.videoItem = video // Truyền dữ liệu sang
+                    
+                    // Vì EditVC dùng background màu đen, nên dùng modalStyle này cho đẹp
+                    editVC.modalPresentationStyle = .fullScreen
+                    let nav = UINavigationController(rootViewController: editVC)
+                    self.present(nav, animated: true)
+                }
+                
                 // List
                 let rename = UIAction(title: "Rename", image: UIImage(systemName: "pencil")) { _ in
                     self.showRenameAlert(at: indexPath)
@@ -213,7 +226,7 @@ extension VideoListViewController: UICollectionViewDataSource, UICollectionViewD
                     self.viewModel.moveToTrash(at: indexPath.row)
                 }
                 
-                return UIMenu(title: "Options", children: [rename, extract, shareAction, delete])
+                return UIMenu(title: "Options", children: [trimAction ,rename, extract, shareAction, delete])
                 
             } else {
                 

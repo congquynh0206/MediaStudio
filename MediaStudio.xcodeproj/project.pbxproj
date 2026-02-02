@@ -12,6 +12,7 @@
 		95EDC3F22F289A5A00DEE318 /* WARangeSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 95EDC3F12F289A5A00DEE318 /* WARangeSlider */; };
 		95EDC3F52F289A8300DEE318 /* DSWaveformImage in Frameworks */ = {isa = PBXBuildFile; productRef = 95EDC3F42F289A8300DEE318 /* DSWaveformImage */; };
 		95EDC3F72F289A8300DEE318 /* DSWaveformImageViews in Frameworks */ = {isa = PBXBuildFile; productRef = 95EDC3F62F289A8300DEE318 /* DSWaveformImageViews */; };
+		95EDC4E92F2C91FE00DEE318 /* PryntTrimmerView in Frameworks */ = {isa = PBXBuildFile; productRef = 95EDC4E82F2C91FE00DEE318 /* PryntTrimmerView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +61,7 @@
 			files = (
 				95C6C32D2F23506E00750AC7 /* RealmSwift in Frameworks */,
 				95EDC3F52F289A8300DEE318 /* DSWaveformImage in Frameworks */,
+				95EDC4E92F2C91FE00DEE318 /* PryntTrimmerView in Frameworks */,
 				95EDC3F22F289A5A00DEE318 /* WARangeSlider in Frameworks */,
 				95EDC3F72F289A8300DEE318 /* DSWaveformImageViews in Frameworks */,
 			);
@@ -109,6 +111,7 @@
 				95EDC3F12F289A5A00DEE318 /* WARangeSlider */,
 				95EDC3F42F289A8300DEE318 /* DSWaveformImage */,
 				95EDC3F62F289A8300DEE318 /* DSWaveformImageViews */,
+				95EDC4E82F2C91FE00DEE318 /* PryntTrimmerView */,
 			);
 			productName = MediaStudio;
 			productReference = 95C6C3112F234DD400750AC7 /* MediaStudio.app */;
@@ -142,6 +145,7 @@
 				95C6C32B2F23506E00750AC7 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				95EDC3F02F289A5A00DEE318 /* XCRemoteSwiftPackageReference "RangeSlider" */,
 				95EDC3F32F289A8300DEE318 /* XCRemoteSwiftPackageReference "DSWaveformImage" */,
+				95EDC4E72F2C91FE00DEE318 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 95C6C3122F234DD400750AC7 /* Products */;
@@ -407,6 +411,14 @@
 				minimumVersion = 14.3.0;
 			};
 		};
+		95EDC4E72F2C91FE00DEE318 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/HHK1/PryntTrimmerView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -429,6 +441,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 95EDC3F32F289A8300DEE318 /* XCRemoteSwiftPackageReference "DSWaveformImage" */;
 			productName = DSWaveformImageViews;
+		};
+		95EDC4E82F2C91FE00DEE318 /* PryntTrimmerView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 95EDC4E72F2C91FE00DEE318 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */;
+			productName = PryntTrimmerView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

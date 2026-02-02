@@ -94,7 +94,7 @@ class VideoRepository {
     private func generateThumbnail(for url: URL) async -> UIImage? {
         let asset = AVURLAsset(url: url)
         let imageGenerator = AVAssetImageGenerator(asset: asset)
-        imageGenerator.appliesPreferredTrackTransform = true // Để ảnh không bị xoay 
+        imageGenerator.appliesPreferredTrackTransform = true // Để ảnh không bị xoay
         imageGenerator.maximumSize = CGSize(width: 500, height: 500)
         
         // Lấy ảnh ở giây thứ 1
@@ -173,12 +173,56 @@ class VideoRepository {
         
         // Trả về object VideoItem đã cập nhật thông tin
         return VideoItem(
-            id: video.id, 
+            id: video.id,
             name: finalName,
             fileURL: destinationURL,
             createdAt: video.createdAt,
             duration: video.duration,
             thumbnail: video.thumbnail
         )
+    }
+    
+    // Hàm cắt video
+    func trimVideo(sourceURL: URL, startTime: Double, endTime: Double) async throws -> URL {
+        let asset = AVURLAsset(url: sourceURL)
+        
+        // 1. Tạo session export
+        // Dùng preset HighestQuality để giữ chất lượng tốt nhất
+        guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {
+            throw NSError(domain: "App", code: -1, userInfo: [NSLocalizedDescriptionKey: "Không tạo được Export Session"])
+        }
+        
+        // 2. Định nghĩa đường dẫn file mới
+        // Tên file: Trimmed_VideoGoc.mov
+        let fileName = "Trimmed_\(sourceURL.lastPathComponent)"
+        let outputURL = videoFolderURL.appendingPathComponent(fileName)
+        
+        // Xóa file cũ nếu lỡ có trùng
+        if FileManager.default.fileExists(atPath: outputURL.path) {
+            try? FileManager.default.removeItem(at: outputURL)
+        }
+        
+        // 3. Thiết lập khoảng thời gian (TimeRange)
+        // CMTime là đơn vị thời gian cực kỳ chính xác của Apple
+        let start = CMTime(seconds: startTime, preferredTimescale: 600)
+        let end = CMTime(seconds: endTime, preferredTimescale: 600)
+        let timeRange = CMTimeRange(start: start, end: end)
+        
+        exportSession.timeRange = timeRange
+        
+        // 4. Xử lý Export (Chia case iOS 18 như bài trước)
+        if #available(iOS 18.0, *) {
+            try await exportSession.export(to: outputURL, as: .mov)
+        } else {
+            exportSession.outputURL = outputURL
+            exportSession.outputFileType = .mov
+            await exportSession.export()
+            
+            if exportSession.status != .completed {
+                throw exportSession.error ?? NSError(domain: "App", code: -1, userInfo: [NSLocalizedDescriptionKey: "Lỗi Export Video"])
+            }
+        }
+        
+        return outputURL
     }
 }

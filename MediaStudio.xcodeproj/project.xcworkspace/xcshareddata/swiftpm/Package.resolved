@@ -1,5 +1,5 @@
 {
-  "originHash" : "06dad28845604868ab29fafd4004673cac3a2713a5016e9627df6fb6c5276fe7",
+  "originHash" : "8fa204b08b34a6e04e956007a25ed2e1c07d2735825a9773c4f5a950c6d5c86e",
   "pins" : [
     {
       "identity" : "dswaveformimage",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "a7a96cf4478c6fa084e76c175bcf7f4c9a38f80a",
         "version" : "14.3.0"
+      }
+    },
+    {
+      "identity" : "prynttrimmerview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/HHK1/PryntTrimmerView",
+      "state" : {
+        "revision" : "ac1b60a22c7e6a6514de7a66d2f3d5b537c956d5",
+        "version" : "4.0.2"
       }
     },
     {
