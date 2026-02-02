@@ -31,6 +31,7 @@ class VideoEditViewController: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Trim Video"
         
+        
         setupUI()
         setupPlayer()
         
